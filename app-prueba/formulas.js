@@ -31,17 +31,43 @@
   const r0 = x => redondear(x, 'normal', 0);
 
   /**
-   * Lee un número escrito a la venezolana o a la gringa:
-   * "16.393,44" → 16393.44 · "3,59" → 3.59 · "3.390" → 3390 · "1.070,00" → 1070 · "3.59" → 3.59 · "858000" → 858000
+   * Lee un número escrito a la venezolana o a la gringa (Willi usa las dos en su Excel).
+   * Regla, en este orden:
+   *  1. Si tiene punto y coma, el separador que va de ÚLTIMO es el decimal:
+   *     "16.393,44" → 16393,44 · "1,070.00" → 1070 · "1.070,00" → 1070
+   *  2. Si tiene un solo tipo de separador y aparece varias veces, son miles: "1.234.567" · "1,234,567"
+   *  3. Si aparece una sola vez y le siguen EXACTAMENTE 3 dígitos, son miles:
+   *     "1,070" → 1070 · "3,390" → 3390 · "858,000" → 858000 · "3.390" → 3390 · "3.660" → 3660
+   *  4. Si no, es el decimal: "3,59" → 3,59 · "3.59" → 3,59 · "0,3" → 0,3
+   * Como "3.660" puede ser un error al escribir 3,66, la pantalla muestra "Entendí: …" en vivo
+   * y los rangos de sentido común (revisarRangos) piden confirmación.
    */
   function leerNumero(txt) {
     if (typeof txt === 'number') return txt;
-    let s = String(txt == null ? '' : txt).trim().replace(/\s|\$|€/g, '');
+    let s = String(txt == null ? '' : txt).trim().replace(/[\s$€]|Bs\.?|COP|VES/gi, '');
     if (!s) return NaN;
-    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
-    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); // solo puntos de miles
-    if (!/^-?\d+(\.\d+)?$/.test(s)) return NaN;
-    return Number(s);
+    const neg = s[0] === '-'; if (neg) s = s.slice(1);
+    if (!/^[\d.,]+$/.test(s) || !/\d/.test(s)) return NaN;
+    const iP = s.lastIndexOf('.'), iC = s.lastIndexOf(',');
+    let entero, dec = '';
+    if (iP >= 0 && iC >= 0) {
+      const sepDec = iP > iC ? '.' : ',', sepMil = sepDec === '.' ? ',' : '.';
+      const partes = s.split(sepDec);
+      if (partes.length !== 2) return NaN;
+      if (!/^\d{1,3}(\x01\d{3})*$/.test(partes[0].split(sepMil).join('\x01'))) return NaN;
+      entero = partes[0].split(sepMil).join(''); dec = partes[1];
+    } else if (iP >= 0 || iC >= 0) {
+      const sep = iP >= 0 ? '.' : ',', partes = s.split(sep);
+      if (partes.length > 2) {
+        if (!/^\d{1,3}$/.test(partes[0]) || partes.slice(1).some(x => !/^\d{3}$/.test(x))) return NaN;
+        entero = partes.join('');
+      } else if (/^\d{3}$/.test(partes[1]) && /^\d{1,3}$/.test(partes[0]) && partes[0] !== '0') {
+        entero = partes.join('');
+      } else { entero = partes[0] || '0'; dec = partes[1]; }
+    } else entero = s;
+    if (!/^\d+$/.test(entero) || !/^\d*$/.test(dec)) return NaN;
+    const n = Number(entero + (dec ? '.' + dec : ''));
+    return neg ? -n : n;
   }
 
   /** Formato venezolano: 16393.44 → "16.393,44". */
@@ -258,10 +284,47 @@
     return lineas.join('\n');
   }
 
+  /**
+   * Rangos de sentido común antes de guardar tasas (los usan la pantalla y el servidor).
+   * nuevos / anteriores: { usdtPesos, usdtBolivares, tasaDiaria, dolarBcv, euroBcv } (números; anteriores = último guardado).
+   * Devuelve la lista de avisos; vacía si todo está bien.
+   */
+  const RANGOS = { usdt: 0.30, bcv: 0.20, tasaMin: 0.8, tasaMax: 1.5 };
+  const NOMBRES = { usdtPesos: 'el precio del USDT en pesos', usdtBolivares: 'el precio del USDT en bolívares', dolarBcv: 'el dólar BCV', euroBcv: 'el euro BCV' };
+  function revisarRangos(nuevos, anteriores) {
+    nuevos = nuevos || {}; anteriores = anteriores || {};
+    const avisos = [];
+    const cerca = (k, tol) => {
+      const n = Number(nuevos[k]), a = Number(anteriores[k]);
+      if (!(n > 0) || !(a > 0)) return;
+      if (Math.abs(n - a) / a > tol) avisos.push({ campo: k, valor: n, anterior: a,
+        texto: '¿Seguro? ' + NOMBRES[k][0].toUpperCase() + NOMBRES[k].slice(1) + ' ' + formato(n, 2) + ' es muy distinto al último guardado (' + formato(a, 2) + ').' });
+    };
+    cerca('usdtPesos', RANGOS.usdt); cerca('usdtBolivares', RANGOS.usdt);
+    cerca('dolarBcv', RANGOS.bcv); cerca('euroBcv', RANGOS.bcv);
+    const tD = Number(nuevos.tasaDiaria);
+    if (tD > 0) {
+      const tB = tasaBinance(nuevos.usdtPesos || anteriores.usdtPesos, nuevos.usdtBolivares || anteriores.usdtBolivares);
+      if (tB > 0 && (tD < tB * RANGOS.tasaMin || tD > tB * RANGOS.tasaMax)) avisos.push({ campo: 'tasaDiaria', valor: tD, anterior: Number(anteriores.tasaDiaria) || null,
+        texto: '¿Seguro? La tasa diaria ' + formato(tD, 2) + ' está muy lejos de la tasa Binance (' + formato(tB, 4) + '). Lo normal es entre ' + formato(tB * RANGOS.tasaMin, 2) + ' y ' + formato(tB * RANGOS.tasaMax, 2) + '.' });
+    }
+    return avisos;
+  }
+
+  /** Aviso en la calculadora cuando la ganancia no tiene sentido (casi siempre, una tasa mal escrita). */
+  const GANANCIA_MAX = 0.25;
+  function avisoGanancia(r) {
+    if (!r || !r.ok) return null;
+    if (r.gananciaPct > GANANCIA_MAX) return 'La ganancia sale de ' + porcentaje(r.gananciaPct) + ', más del ' + formato(GANANCIA_MAX * 100, 0) + ' %. Revisa las tasas.';
+    if (r.gananciaPct < 0) return 'La ganancia sale negativa (' + porcentaje(r.gananciaPct) + '): estarías perdiendo plata. Revisa las tasas.';
+    return null;
+  }
+
   const API = {
     redondear, leerNumero, formato, pesos, bolivares, tasa, porcentaje,
     AJUSTES_BASE, ajustes, tasaBinance, margen, margenReal, tasaSugerida, tasaVeCo, avisoMargen,
-    REFERENCIAS, calcular, fechaLarga, tarjeta, mensajeTexto
+    REFERENCIAS, calcular, fechaLarga, tarjeta, mensajeTexto,
+    RANGOS, revisarRangos, GANANCIA_MAX, avisoGanancia
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   raiz.F = API;

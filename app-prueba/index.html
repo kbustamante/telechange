@@ -132,6 +132,11 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 .ventana{background:var(--sup);border-radius:18px;padding:16px;width:100%;max-width:440px;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
 .ventana img{width:100%;border-radius:12px;display:block}
 .cargando{opacity:.6;pointer-events:none}
+.entendi{font-size:13px;color:var(--tenue);margin-top:-2px}
+.entendi b{color:var(--suave);font-weight:700}
+.entendi.mal{color:#ffb3b6}
+.lista .entendi{display:block;text-align:right;padding:0 0 8px}
+.entendi .ojo-rango{color:#ffd28a}
 </style>
 </head>
 <body>
@@ -346,7 +351,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 'use strict';
 const API_URL = 'https://script.google.com/macros/s/AKfycbzGle5R2vx6tSLhoY9_zIKXS9K1rL7OLsM-loDkMDanMvfhWTGgKTDVs3YSKdxT89oM/exec';
 const ENTORNO = 'PRUEBA';
-const PANTALLA = 1;
+const PANTALLA = 2;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
@@ -388,7 +393,9 @@ async function api(action, data, conPin) {
   } catch (e) { const err = new Error('Sin conexión. Revisa la señal e intenta de nuevo.'); err.sinRed = true; throw err; }
   if (!r.ok) {
     if (/sesión venció/.test(r.error || '')) { salirLocal(); }
-    throw new Error(r.error || 'Error del servidor');
+    const err = new Error(r.error || 'Error del servidor');
+    if (r.confirmar) err.confirmar = r.confirmar; // V2: valor fuera de rango, hay que preguntar
+    throw err;
   }
   return r.data;
 }
@@ -477,6 +484,50 @@ function salirLocal() {
   ir('vPin');
 }
 
+// ───────── V2: "Entendí: …" bajo cada número y confirmación de valores raros ─────────
+// Willi escribe a veces a la gringa ("1,070.00"): bajo cada campo se ve cómo lo leyó la app.
+function entendi(id, decimales, avisoRango) {
+  const input = $(id); if (!input) return;
+  let s = document.getElementById('ent-' + id);
+  if (!s) {
+    s = el('span', { class: 'entendi', id: 'ent-' + id, 'aria-live': 'polite' });
+    const caja = input.closest('.campo, .mini, .item') || input;
+    caja.insertAdjacentElement('afterend', s);
+  }
+  const txt = input.value.trim();
+  s.textContent = ''; s.classList.remove('mal');
+  if (!txt) return;
+  const n = num(txt);
+  if (!isFinite(n)) { s.classList.add('mal'); s.textContent = 'No entendí ese número. Ejemplos: 1.070,00 o 1,070.00'; return; }
+  const dec = typeof decimales === 'function' ? decimales(n) : decimales;
+  s.append('Entendí: ', el('b', {}, F.formato(n, dec)));
+  const aviso = avisoRango ? avisoRango(n) : null;
+  if (aviso) s.append(el('span', { class: 'ojo-rango' }, ' · ' + aviso));
+}
+const decTasa = n => (Math.round(n * 100) === n * 100 ? 2 : 4);
+function ultimos() {
+  const t = (S.datos && S.datos.tasas) || {}, v = x => x ? x.valor : null;
+  return { usdtPesos: v(t.usdtPesos), usdtBolivares: v(t.usdtBolivares), tasaDiaria: v(t.tasaDiaria), dolarBcv: v(t.dolarBcv), euroBcv: v(t.euroBcv) };
+}
+/** Aviso corto si el valor se sale del rango de sentido común (el mismo que revisa el servidor). */
+function rangoCampo(campo) {
+  return n => {
+    const nuevos = {}; nuevos[campo] = n;
+    if (campo === 'tasaDiaria') { nuevos.usdtPesos = num($('inUsdtPesos').value); nuevos.usdtBolivares = num($('inUsdtBs').value); }
+    const a = F.revisarRangos(nuevos, ultimos()).find(x => x.campo === campo);
+    return a ? (campo === 'tasaDiaria' ? 'muy lejos de la tasa Binance' : 'muy distinto al último (' + F.formato(a.anterior, 2) + ')') : null;
+  };
+}
+/** Llama al servidor y, si un valor se sale del rango, pregunta "¿Seguro?" antes de reenviarlo confirmado. */
+async function conConfirmacion(action, data) {
+  try { return await api(action, data); }
+  catch (e) {
+    if (!e.confirmar) throw e;
+    if (!window.confirm(e.confirmar.map(a => a.texto).join('\n\n') + '\n\n¿Lo guardo de todas formas?')) { const x = new Error('No se guardó. Revisa el número.'); throw x; }
+    return api(action, Object.assign({}, data || {}, { confirmado: true }));
+  }
+}
+
 // ───────── calculadora ─────────
 function marcar(segId, valor) { document.querySelectorAll('#' + segId + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === valor))); }
 function enlazarSeg(segId, clave) {
@@ -488,6 +539,7 @@ function enlazarSeg(segId, clave) {
 }
 enlazarSeg('segDir', 'dir'); enlazarSeg('segEn', 'en'); enlazarSeg('segRef', 'ref');
 $('monto').addEventListener('input', () => pintarCalc());
+function entendiMonto() { entendi('monto', S.ui.en === 'pesos' ? 0 : 2); }
 $('monto').addEventListener('blur', () => {
   const n = num($('monto').value);
   if (n > 0) $('monto').value = S.ui.en === 'pesos' ? F.pesos(n) : F.formato(n, 2);
@@ -522,7 +574,11 @@ function pintarCalc() {
   marcar('segDir', S.ui.dir); marcar('segEn', S.ui.en); marcar('segRef', S.ui.ref);
   $('montoUni').textContent = S.ui.en === 'pesos' ? 'pesos' : S.ui.en === 'bolivares' ? 'bolívares' : 'dólares';
   avisosComunes($('avisosCalc'), false);
+  entendiMonto();
   const r = calculo(), box = $('resultado');
+  // V2: si la ganancia no tiene sentido casi siempre es una tasa mal escrita. Sin decir el % (el cliente puede ver la pantalla).
+  if (F.avisoGanancia(r)) $('avisosCalc').querySelectorAll('.aviso.rojo').forEach(x => x.remove()); // un solo aviso rojo: este ya cubre el de margen
+  if (F.avisoGanancia(r)) $('avisosCalc').prepend(el('div', { class: 'aviso rojo', role: 'alert' }, el('b', {}, 'Revisa las tasas'), el('span', {}, 'La ganancia sale fuera de lo normal (más de ' + F.formato(F.GANANCIA_MAX * 100, 0) + ' % o negativa). Abre el ojo para ver el detalle y revisa los precios en Tasas.')));
   box.textContent = '';
   const btns = [$('btnCompartir'), $('btnVer'), $('btnCopiar')];
   if (!r.ok) {
@@ -739,6 +795,11 @@ function llenarTasas() {
   vivoTasas();
 }
 function vivoTasas() {
+  entendi('inUsdtPesos', 2, rangoCampo('usdtPesos'));
+  entendi('inUsdtBs', 2, rangoCampo('usdtBolivares'));
+  entendi('inDiaria', decTasa, rangoCampo('tasaDiaria'));
+  entendi('inDolar', 2, rangoCampo('dolarBcv'));
+  entendi('inEuro', 2, rangoCampo('euroBcv'));
   const a = ajustes();
   const tB = F.tasaBinance(num($('inUsdtPesos').value), num($('inUsdtBs').value));
   $('tbVivo').textContent = tB > 0 ? F.tasa(tB, 4) : '—';
@@ -759,7 +820,7 @@ function vivoTasas() {
   $('vecoVivo').textContent = v && v.tasa > 0 ? F.tasa(v.tasa) : '—';
   $('vecoNota').textContent = 'Tasa Binance − ' + F.formato(a.descuentoVeCo, 2) + (v ? ' = ' + F.tasa(v.exacta, 4) + ', redondeo ' + a.redondeoVeCo : '');
 }
-['inUsdtPesos', 'inUsdtBs', 'inDiaria'].forEach(id => $(id).addEventListener('input', vivoTasas));
+['inUsdtPesos', 'inUsdtBs', 'inDiaria', 'inDolar', 'inEuro'].forEach(id => $(id).addEventListener('input', vivoTasas));
 $('btnUsarSug').addEventListener('click', () => { const tB = F.tasaBinance(num($('inUsdtPesos').value), num($('inUsdtBs').value)); if (tB > 0) { $('inDiaria').value = F.tasa(F.tasaSugerida(tB, ajustes()).tasa); vivoTasas(); } });
 $('btnBcvMano').addEventListener('click', () => $('bcvMano').classList.toggle('oculto'));
 
@@ -768,7 +829,7 @@ async function conCarga(boton, fn) {
   try { await fn(); } catch (e) { toast(e.message, 5000); } finally { boton.disabled = false; if (boton.textContent !== txt && !boton.querySelector('svg')) boton.textContent = txt; }
 }
 async function guardarTasas(d) {
-  const r = await api('guardarTasas', d);
+  const r = await conConfirmacion('guardarTasas', d);
   recibir(r); toast('Tasas guardadas.');
 }
 $('btnGuardarTasas').addEventListener('click', () => conCarga($('btnGuardarTasas'), async () => {
@@ -786,11 +847,13 @@ $('btnGuardarTasas').addEventListener('click', () => conCarga($('btnGuardarTasas
   await guardarTasas(d);
   llenarTasas();
 }));
-$('btnBinance').addEventListener('click', () => conCarga($('btnBinance'), async () => { recibir(await api('leerBinance')); llenarTasas(); toast('Precios leídos de Binance.'); }));
-$('btnBcvLeer').addEventListener('click', () => conCarga($('btnBcvLeer'), async () => { recibir(await api('leerBcv')); llenarTasas(); toast('BCV actualizado.'); }));
+$('btnBinance').addEventListener('click', () => conCarga($('btnBinance'), async () => { recibir(await conConfirmacion('leerBinance')); llenarTasas(); toast('Precios leídos de Binance.'); }));
+$('btnBcvLeer').addEventListener('click', () => conCarga($('btnBcvLeer'), async () => { recibir(await conConfirmacion('leerBcv')); llenarTasas(); toast('BCV actualizado.'); }));
 
 // ───────── ajustes ─────────
 let logoNuevo; // undefined: sin cambio · '': volver al original · data:...: nuevo
+['aMargen', 'aPm', 'aDesc'].forEach(id => $(id).addEventListener('input', () => entendiAjustes()));
+function entendiAjustes() { entendi('aMargen', 2); entendi('aPm', 2); entendi('aDesc', 2); }
 function llenarAjustes() {
   const a = ajustes(), n = negocio();
   $('aMargen').value = F.formato(a.margen * 100, 2).replace(/,00$/, '');
@@ -803,6 +866,7 @@ function llenarAjustes() {
   $('ajLogo').src = n.logo || 'logo.jpg';
   $('btnLogoBase').classList.toggle('oculto', !n.logo);
   logoNuevo = undefined;
+  entendiAjustes();
   $('version').textContent = 'Telechange · pantalla ' + PANTALLA + ' · servidor ' + ((S.datos && S.datos.version) || '—') + ' · ' + ENTORNO + ' · respaldo automático cada día';
 }
 $('aLogo').addEventListener('change', async () => {
