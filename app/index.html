@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Telechange</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Telechange">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+:root{
+  --fondo:#0b0f1a; --sup:#141a2a; --sup2:#0f1422; --borde:#2b3550; --linea:#222b40;
+  --texto:#ffffff; --suave:#c9d3de; --gris:#a9b4c4; --tenue:#8d99ab;
+  --rojo:#c8161f; --celeste:#6fd6ff; --claro:#e8f7fd; --oscuro:#13222e;
+  --num:'Space Grotesk',system-ui,sans-serif; --txt:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--texto);font-family:var(--txt);-webkit-text-size-adjust:100%}
+body{min-height:100vh}
+button,input,select{font-family:inherit;font-size:16px}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:3px solid var(--celeste);outline-offset:2px}
+.oculto{display:none !important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.prueba-barra{background:#ea580c;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:4px}
+main{flex:1;padding:20px 18px 110px;display:flex;flex-direction:column;gap:16px}
+h1{margin:0;font-family:var(--num);font-size:26px}
+h2{margin:0;font-size:15px}
+.cab{display:flex;align-items:center;gap:10px}
+.cab img{width:52px;height:42px;object-fit:contain}
+.cab .nom{font-family:var(--num);font-size:18px;font-weight:700}
+.cab .sub{font-size:13px;color:var(--gris)}
+.chip{font-size:12px;font-weight:700;color:var(--fondo);background:var(--celeste);border-radius:999px;padding:4px 10px}
+.chip.prueba{background:#ea580c;color:#fff}
+.etq{font-size:13px;color:var(--gris);font-weight:500}
+.seg{display:grid;gap:6px}
+.seg.fondo{background:var(--sup);border-radius:14px;padding:4px}
+.seg button{min-height:44px;border-radius:10px;border:1.5px solid var(--borde);background:transparent;color:var(--suave);font-size:15px;font-weight:500;padding:0 6px}
+.seg.fondo button{border:none;border-radius:11px;min-height:48px}
+.seg button[aria-pressed="true"]{border-color:var(--celeste);background:rgba(111,214,255,.12);color:var(--celeste);font-weight:700}
+.seg.fondo button[aria-pressed="true"]{background:var(--rojo);color:#fff}
+.campo{display:flex;align-items:baseline;gap:8px;background:var(--sup);border:1.5px solid var(--borde);border-radius:14px;padding:12px 16px}
+.campo input{flex:1;min-width:0;background:transparent;border:none;color:var(--texto);font-family:var(--num);font-size:32px;font-weight:700;padding:0}
+.campo input:focus{outline:none}
+.campo:focus-within{border-color:var(--celeste)}
+.campo .uni{font-size:16px;color:var(--gris)}
+.grupo{display:flex;flex-direction:column;gap:8px}
+.resultado{background:#fff;color:var(--oscuro);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.resultado .alto{background:var(--claro);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.resultado .alto span:first-child{font-size:14px;color:#3d4b56;font-weight:500}
+.resultado .grande{font-family:var(--num);font-size:32px;font-weight:700;color:var(--fondo);word-break:break-word}
+.resultado .grande small{font-size:17px}
+.fila{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:38px;border-bottom:1px solid #e3e8ec}
+.fila:last-child{border-bottom:none}
+.fila span:first-child{font-size:15px;color:#4d5f6d}
+.fila span:last-child{font-family:var(--num);font-size:17px;font-weight:500;text-align:right}
+.fila.fuerte span:last-child{font-size:19px;font-weight:700}
+.vacio{color:#4d5f6d;font-size:15px;text-align:center;padding:12px}
+.privado{background:var(--sup);border:1.5px dashed #3a4560;border-radius:18px;padding:8px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.privado .tit{display:flex;align-items:center;gap:8px;color:var(--gris);font-size:13px;font-weight:500}
+.privado .tit span{flex:1}
+.ojo{width:44px;height:44px;border:none;background:transparent;color:var(--gris);display:flex;align-items:center;justify-content:center;border-radius:10px}
+.dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.g .v{font-family:var(--num);font-size:22px;font-weight:700}
+.g .v small{font-size:14px;color:var(--gris)}
+.g .p{font-size:14px;color:var(--celeste);font-weight:700}
+.nota{font-size:13px;color:var(--tenue)}
+.btn{min-height:52px;border-radius:14px;border:1.5px solid var(--borde);background:transparent;color:#fff;font-size:15px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 14px}
+.btn.prin{background:var(--rojo);border-color:var(--rojo);font-size:17px;font-weight:700;min-height:56px}
+.btn.chico{min-height:44px;border-radius:10px;font-size:14px}
+.btn.cel{border-color:var(--celeste);color:var(--celeste);font-weight:700}
+.aviso{border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.aviso b{font-size:15px}
+.aviso.rojo{background:#2a0d12;border:1.5px solid var(--rojo);color:#f1d6d8}
+.aviso.rojo b{color:#ffb3b6}
+.aviso.gris{background:var(--sup);border:1.5px solid #3a4560;color:var(--suave)}
+.aviso .btn{align-self:flex-start}
+.caja{background:var(--sup);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.caja.roja{border:1.5px solid var(--rojo)}
+.entre{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mini{display:flex;align-items:center;gap:8px;background:var(--sup2);border:1.5px solid var(--borde);border-radius:12px;padding:0 12px;min-height:52px}
+.mini:focus-within{border-color:var(--celeste)}
+.mini input{flex:1;min-width:0;background:transparent;border:none;color:#fff;font-family:var(--num);font-size:20px;font-weight:700}
+.mini input:focus{outline:none}
+.fuente{font-size:12px;color:var(--gris);white-space:nowrap}
+.fuente.mano{font-weight:700;color:var(--fondo);background:var(--celeste);border-radius:999px;padding:3px 9px}
+.cuadro{background:var(--sup2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.cuadro .v{font-family:var(--num);font-size:22px;font-weight:700}
+.tasa-grande{background:var(--sup2);border:1.5px solid var(--borde);border-radius:12px;color:#fff;font-family:var(--num);font-size:40px;font-weight:700;padding:8px 14px;width:100%}
+.lista{background:var(--sup);border-radius:16px;padding:6px 16px;display:flex;flex-direction:column}
+.lista h2{margin:10px 0 4px;font-size:13px;color:var(--gris)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:60px;border-bottom:1px solid var(--linea)}
+.item:last-child{border-bottom:none}
+.item .d{display:flex;flex-direction:column;gap:2px}
+.item .d small{font-size:12px;color:var(--tenue)}
+.num-in{width:84px;height:44px;text-align:right;background:var(--sup2);border:1.5px solid var(--borde);border-radius:10px;color:#fff;font-family:var(--num);font-size:17px;padding:0 10px}
+.txt-in{height:48px;background:var(--sup2);border:1.5px solid var(--borde);border-radius:10px;color:#fff;font-size:15px;padding:0 12px;width:100%}
+select.num-in{width:auto;text-align:left;font-family:var(--txt);font-size:15px}
+input[type=checkbox].sw{width:52px;height:30px;accent-color:var(--rojo);flex:none}
+nav.abajo{position:fixed;left:0;right:0;bottom:0;background:#111726;border-top:1px solid var(--linea);padding:8px 8px calc(10px + env(safe-area-inset-bottom))}
+nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+nav.abajo button{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--gris);background:none;border:none;font-size:12px;font-weight:500}
+nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
+/* PIN */
+.pin{flex:1;display:flex;flex-direction:column;align-items:center;gap:24px;padding:48px 28px 32px}
+.pin .logo{width:220px;max-width:70vw;height:auto;object-fit:contain;filter:drop-shadow(0 0 14px rgba(111,214,255,.35))}
+.pin .nom{font-family:var(--num);font-size:30px;font-weight:700}
+.pin .frase{font-size:14px;color:var(--celeste);font-weight:500;text-align:center}
+.puntos{display:flex;gap:14px;min-height:16px}
+.puntos span{width:16px;height:16px;border-radius:8px;background:var(--celeste)}
+.puntos span.v{background:transparent;border:2px solid #3a4560}
+.teclado{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;width:100%;max-width:300px}
+.teclado button{height:64px;border-radius:32px;border:none;background:#161d2e;color:#fff;font-family:var(--num);font-size:26px}
+.teclado button.trans{background:transparent;color:var(--suave);font-family:var(--txt);font-size:15px;font-weight:700}
+.error-pin{color:#ffb3b6;font-size:14px;min-height:20px;text-align:center}
+/* avisos cortos y ventana */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;width:calc(100% - 36px);max-width:484px;background:var(--claro);color:var(--fondo);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:500;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.velo{position:fixed;inset:0;background:rgba(5,8,15,.85);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+.ventana{background:var(--sup);border-radius:18px;padding:16px;width:100%;max-width:440px;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.ventana img{width:100%;border-radius:12px;display:block}
+.cargando{opacity:.6;pointer-events:none}
+.txt-in.claro{background:var(--sup);font-size:16px}
+.op{background:var(--sup);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.op .l1{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.op .cli{font-weight:700;font-size:15px}
+.op .cli.sin{color:var(--gris);font-weight:500}
+.op .det{font-size:14px;color:var(--suave)}
+.op .det b{font-family:var(--num)}
+.op .acc{display:flex;gap:8px;flex-wrap:wrap}
+.op .acc .btn{min-height:44px;flex:1;font-size:14px}
+.estado{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.estado.Cotizada{background:#3a2d0a;color:#ffd28a}
+.estado.Procesada{background:#0d3324;color:#7ee2b0}
+.estado.Cancelada{background:#2a2f3c;color:#a9b4c4}
+.cifras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cifra{background:var(--sup2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.cifra .v{font-family:var(--num);font-size:19px;font-weight:700;word-break:break-word}
+.fila-lista{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--linea)}
+.fila-lista:last-child{border-bottom:none}
+.entendi{font-size:13px;color:var(--tenue);margin-top:-2px}
+.entendi b{color:var(--suave);font-weight:700}
+.entendi.mal{color:#ffb3b6}
+.lista .entendi{display:block;text-align:right;padding:0 0 8px}
+.entendi .ojo-rango{color:#ffd28a}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="barraPrueba" class="prueba-barra oculto">PRUEBA · los datos no son reales</div>
+
+  <!-- Entrada con PIN -->
+  <section id="vPin" class="pin" aria-labelledby="tPin">
+    <img class="logo" id="pinLogo" src="logo.png" alt="Logo Telechange">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <span class="nom" id="tPin">Telechange</span>
+      <span class="frase" id="pinFrase">Casa de Cambios</span>
+    </div>
+    <span style="color:var(--suave)">Escribe tu PIN</span>
+    <div class="puntos" id="puntos" aria-live="polite"></div>
+    <div class="error-pin" id="errorPin" role="alert"></div>
+    <div class="teclado" id="teclado"></div>
+  </section>
+
+  <!-- Calculadora -->
+  <main id="vCalc" class="oculto" aria-label="Calculadora">
+    <header class="cab">
+      <img id="calcLogo" src="logo.png" alt="">
+      <div style="display:flex;flex-direction:column;flex:1">
+        <span class="nom" id="calcNombre">Telechange</span>
+        <span class="sub" id="calcSub"></span>
+      </div>
+      <span class="chip" id="chipEntorno">REAL</span>
+    </header>
+    <div id="avisosCalc" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="grupo">
+      <span class="etq" id="lDir">Dirección del envío</span>
+      <div class="seg fondo" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group" aria-labelledby="lDir" id="segDir">
+        <button data-v="CO-VE">Colombia → Venezuela</button>
+        <button data-v="VE-CO">Venezuela → Colombia</button>
+      </div>
+    </div>
+    <div class="grupo">
+      <span class="etq" id="lEn">Monto que escribo en</span>
+      <div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-labelledby="lEn" id="segEn">
+        <button data-v="pesos">Pesos</button>
+        <button data-v="bolivares">Bolívares</button>
+        <button data-v="dolares">Dólares BCV</button>
+      </div>
+      <label class="campo" for="monto">
+        <span class="sr">Monto</span>
+        <input id="monto" inputmode="decimal" autocomplete="off" placeholder="0">
+        <span class="uni" id="montoUni">pesos</span>
+      </label>
+    </div>
+    <div class="grupo">
+      <span class="etq" id="lRef">Equivalencia en el mensaje</span>
+      <div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-labelledby="lRef" id="segRef">
+        <button data-v="usd_bcv">$ BCV</button>
+        <button data-v="eur_bcv">€ BCV</button>
+        <button data-v="usd_binance">$ Binance</button>
+      </div>
+    </div>
+    <label class="grupo" for="cliente">
+      <span class="etq">Cliente (nombre o apodo, opcional) · se guarda en el Registro al enviar</span>
+      <input id="cliente" class="txt-in claro" list="listaClientes" maxlength="40" autocomplete="off" placeholder="Ej.: Carlos, Sra. Ana">
+    </label>
+    <datalist id="listaClientes"></datalist>
+    <section class="resultado" id="resultado" aria-live="polite"></section>
+    <section class="privado" aria-label="Ganancia, solo para ti">
+      <div class="tit">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <span>Ganancia · solo tú la ves</span>
+        <button class="ojo" id="btnOjo" aria-label="Mostrar ganancia" aria-pressed="false"></button>
+      </div>
+      <div id="ganancia" class="oculto"></div>
+    </section>
+    <button class="btn prin" id="btnCompartir">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12M7 8l5-5 5 5"/></svg>
+      Enviar por WhatsApp
+    </button>
+    <button class="btn" id="btnCopiar">Copiar texto</button>
+  </main>
+
+  <!-- Registro -->
+  <main id="vRegistro" class="oculto" aria-labelledby="tReg">
+    <header class="entre">
+      <h1 id="tReg">Registro</h1>
+      <button class="ojo" id="btnOjoReg" aria-label="Mostrar ganancia" aria-pressed="false"></button>
+    </header>
+    <div class="seg fondo" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group" aria-label="Periodo" id="segPeriodo">
+      <button data-v="hoy">Hoy</button>
+      <button data-v="mes">Este mes</button>
+    </div>
+    <section class="caja" id="regResumen" aria-live="polite"></section>
+    <div id="regPendientes"></div>
+    <section style="display:flex;flex-direction:column;gap:10px" id="regLista" aria-label="Operaciones"></section>
+    <section class="caja oculto" id="regClientes" aria-label="Mejores clientes"></section>
+  </main>
+
+  <!-- Tasas -->
+  <main id="vTasas" class="oculto" aria-labelledby="tTasas">
+    <header style="display:flex;flex-direction:column;gap:2px">
+      <h1 id="tTasas">Tasas del día</h1>
+      <span class="sub" id="tasasFecha" style="color:var(--gris);font-size:14px"></span>
+    </header>
+    <div id="avisosTasas" style="display:flex;flex-direction:column;gap:10px"></div>
+
+    <section class="caja" aria-labelledby="hBcv">
+      <div class="entre"><h2 id="hBcv">BCV</h2><span class="fuente" id="bcvFuente"></span></div>
+      <div class="dos">
+        <div class="cuadro"><span class="etq">Dólar</span><span class="v" id="bcvDolar">—</span></div>
+        <div class="cuadro"><span class="etq">Euro</span><span class="v" id="bcvEuro">—</span></div>
+      </div>
+      <div class="entre">
+        <button class="btn chico" id="btnBcvMano">Escribir a mano</button>
+        <button class="btn chico cel" id="btnBcvLeer">Volver a leer el BCV</button>
+      </div>
+      <div id="bcvMano" class="oculto" style="display:flex;flex-direction:column;gap:10px">
+        <label class="grupo"><span class="etq">Dólar BCV</span><span class="mini"><input id="inDolar" inputmode="decimal" autocomplete="off"></span></label>
+        <label class="grupo"><span class="etq">Euro BCV</span><span class="mini"><input id="inEuro" inputmode="decimal" autocomplete="off"></span></label>
+      </div>
+    </section>
+
+    <section class="caja" aria-labelledby="hBin">
+      <div class="entre">
+        <h2 id="hBin">USDT en Binance P2P</h2>
+        <button class="ojo" id="btnBinance" aria-label="Volver a leer Binance" style="border:1.5px solid var(--borde);color:var(--celeste)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        </button>
+      </div>
+      <label class="grupo"><span class="etq">Precio en pesos</span>
+        <span class="mini"><input id="inUsdtPesos" inputmode="decimal" autocomplete="off"><span class="fuente" id="fPesos"></span></span>
+      </label>
+      <label class="grupo"><span class="etq">Precio en bolívares</span>
+        <span class="mini"><input id="inUsdtBs" inputmode="decimal" autocomplete="off"><span class="fuente" id="fBs"></span></span>
+      </label>
+      <span class="nota" id="binanceDecia"></span>
+      <div class="entre" style="border-top:1px solid var(--linea);padding-top:12px">
+        <span style="font-size:14px;color:var(--suave)">Tasa Binance</span>
+        <span style="font-family:var(--num);font-size:22px;font-weight:700" id="tbVivo">—</span>
+      </div>
+    </section>
+
+    <section class="caja roja" aria-labelledby="hDiaria">
+      <h2 id="hDiaria">Tasa diaria · Colombia → Venezuela</h2>
+      <label for="inDiaria" class="sr">Tasa diaria</label>
+      <input id="inDiaria" class="tasa-grande" inputmode="decimal" autocomplete="off">
+      <div class="entre">
+        <span style="font-size:14px;color:var(--suave)">Ganancia con esta tasa</span>
+        <span style="font-size:18px;font-weight:700;color:var(--celeste)" id="pctVivo">—</span>
+      </div>
+      <div class="entre cuadro" style="flex-direction:row">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span class="etq" id="sugEtq">Sugerida</span>
+          <span class="v" id="sugVivo" style="font-size:20px">—</span>
+        </div>
+        <button class="btn chico cel" id="btnUsarSug">Usar</button>
+      </div>
+      <span class="nota" id="sugNota"></span>
+    </section>
+
+    <section class="caja entre" style="flex-direction:row" aria-labelledby="hVeCo">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <h2 id="hVeCo">Venezuela → Colombia</h2>
+        <span class="nota" id="vecoNota"></span>
+      </div>
+      <span style="font-family:var(--num);font-size:22px;font-weight:700" id="vecoVivo">—</span>
+    </section>
+
+    <button class="btn prin" id="btnGuardarTasas">Guardar tasas de hoy</button>
+  </main>
+
+  <!-- Ajustes -->
+  <main id="vAjustes" class="oculto" aria-labelledby="tAjustes">
+    <h1 id="tAjustes">Ajustes</h1>
+    <section class="lista">
+      <h2>GANANCIA Y COSTOS</h2>
+      <div class="item"><label for="aMargen">Margen objetivo</label><span style="display:flex;align-items:center;gap:6px"><input id="aMargen" class="num-in" inputmode="decimal"><span style="color:var(--gris)">%</span></span></div>
+      <div class="item"><label for="aPm">Comisión pago móvil</label><span style="display:flex;align-items:center;gap:6px"><input id="aPm" class="num-in" inputmode="decimal"><span style="color:var(--gris)">%</span></span></div>
+      <div class="item"><span class="d"><label for="aLimpio">“10 % limpio”</label><small>La tasa sugerida cubre también el pago móvil</small></span><input type="checkbox" role="switch" class="sw" id="aLimpio"></div>
+      <div class="item"><span class="d"><label for="aDesc">Descuento Venezuela → Colombia</label><small>Se resta a la tasa Binance</small></span><input id="aDesc" class="num-in" inputmode="decimal"></div>
+    </section>
+    <section class="lista">
+      <h2>REDONDEO DE TASAS (2 DECIMALES)</h2>
+      <div class="item"><span class="d"><label for="aRedCo">Colombia → Venezuela</label><small>Tasa sugerida</small></span>
+        <select id="aRedCo" class="num-in"><option value="arriba">Hacia arriba</option><option value="abajo">Hacia abajo</option><option value="normal">Normal</option></select></div>
+      <div class="item"><span class="d"><label for="aRedVe">Venezuela → Colombia</label><small>Tasa del envío inverso</small></span>
+        <select id="aRedVe" class="num-in"><option value="abajo">Hacia abajo</option><option value="arriba">Hacia arriba</option><option value="normal">Normal</option></select></div>
+    </section>
+    <section class="lista">
+      <h2>TASAS AUTOMÁTICAS</h2>
+      <div class="item"><span class="d"><label for="aBinance">Leer Binance solo</label><small>Si falla seguido, apágalo y escribe los precios a mano</small></span><input type="checkbox" role="switch" class="sw" id="aBinance"></div>
+    </section>
+    <section class="caja" aria-label="Negocio">
+      <h2 style="font-size:13px;color:var(--gris)">NEGOCIO (SALE EN LA TARJETA)</h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img id="ajLogo" src="logo.png" alt="Logo actual" style="width:72px;height:58px;object-fit:contain">
+        <label class="btn chico" for="aLogo" style="cursor:pointer">Cambiar logo</label>
+        <input type="file" id="aLogo" accept="image/*" class="sr">
+        <button class="btn chico oculto" id="btnLogoBase">Usar el original</button>
+      </div>
+      <label class="grupo"><span class="etq">Nombre</span><input id="aNombre" class="txt-in" maxlength="40"></label>
+      <label class="grupo"><span class="etq">Frase</span><input id="aFrase" class="txt-in" maxlength="80"></label>
+    </section>
+    <button class="btn prin" id="btnGuardarAjustes">Guardar ajustes</button>
+    <section class="lista">
+      <h2>CUENTA</h2>
+      <div class="item"><button class="btn chico" id="btnPin" style="border:none;padding:0">Cambiar PIN</button></div>
+      <div class="item"><button class="btn chico" id="btnSalir" style="border:none;padding:0;color:#ff8a8f">Salir</button></div>
+    </section>
+    <span class="nota" style="text-align:center" id="version"></span>
+  </main>
+
+  <nav class="abajo oculto" id="nav" aria-label="Pantallas">
+    <div class="in">
+      <button data-v="vCalc"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Calcular</button>
+      <button data-v="vRegistro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v16H5V7z"/><path d="M8 4v3H5M9 11h7M9 15h7"/></svg>Registro</button>
+      <button data-v="vTasas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Tasas</button>
+      <button data-v="vAjustes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Ajustes</button>
+    </div>
+  </nav>
+</div>
+
+<div id="toast" class="toast oculto" role="status" aria-live="polite"></div>
+
+<div id="velo" class="velo oculto" role="dialog" aria-modal="true" aria-labelledby="ventTit">
+  <div class="ventana">
+    <div class="entre"><h2 id="ventTit">Tarjeta para el cliente</h2><button class="ojo" id="btnCerrar" aria-label="Cerrar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="ventCuerpo" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="formulas.js"></script>
+<script>
+'use strict';
+// La dirección del servidor vive en config.js (se puede cambiar desde la página de GitHub sin volver a armar la app)
+const API_URL = window.TELECHANGE_API || '';
+const ENTORNO = 'REAL';
+const PANTALLA = 7;
+
+// ───────── utilidades ─────────
+const $ = id => document.getElementById(id);
+const NS = 'tc_' + ENTORNO + '_';
+const guardar = (k, v) => { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} };
+const leer = (k, def) => { try { const v = localStorage.getItem(NS + k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
+const borrar = k => { try { localStorage.removeItem(NS + k); } catch (e) {} };
+function el(tag, attrs, ...hijos) {
+  const e = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => { if (k === 'class') e.className = v; else if (k === 'style') e.style.cssText = v; else e.setAttribute(k, v); });
+  hijos.flat().forEach(h => { if (h == null) return; e.append(h.nodeType ? h : document.createTextNode(String(h))); });
+  return e;
+}
+let tToast = null;
+function toast(msg, ms) {
+  const t = $('toast'); t.textContent = msg; t.classList.remove('oculto');
+  clearTimeout(tToast); tToast = setTimeout(() => t.classList.add('oculto'), ms || 3500);
+}
+const num = v => F.leerNumero(v);
+
+// ───────── estado ─────────
+const S = {
+  token: leer('token', null),
+  datos: leer('datos', null),
+  ui: Object.assign({ dir: 'CO-VE', en: 'pesos', ref: 'usd_bcv' }, leer('ui', {})),
+  verGanancia: false, // siempre arranca oculta
+  pin: ''
+};
+
+// ───────── servidor ─────────
+async function api(action, data, conPin) {
+  if (!API_URL) throw new Error('Falta conectar el servidor: pon la dirección /exec en config.js (en GitHub).');
+  const req = { action, data: data || {} };
+  if (conPin) req.pin = conPin; else req.token = S.token;
+  let r;
+  try {
+    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(req) });
+    r = await res.json();
+  } catch (e) { const err = new Error('Sin conexión. Revisa la señal e intenta de nuevo.'); err.sinRed = true; throw err; }
+  if (!r.ok) {
+    if (/sesión venció/.test(r.error || '')) { salirLocal(); }
+    const err = new Error(r.error || 'Error del servidor');
+    if (r.confirmar) err.confirmar = r.confirmar; // V2: valor fuera de rango, hay que preguntar
+    throw err;
+  }
+  return r.data;
+}
+function recibir(d) {
+  if (!d) return;
+  if (d.token) { S.token = d.token; guardar('token', d.token); delete d.token; }
+  S.datos = d; guardar('datos', d);
+  pintarTodo();
+}
+async function refrescar() {
+  try { recibir(await api('datos')); vaciarCola(); }
+  catch (e) { if (S.token) toast(e.sinRed ? 'Sin conexión: uso las últimas tasas guardadas.' : e.message); }
+}
+
+// ───────── datos derivados ─────────
+const hoyLocal = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); };
+function hoy() { return (S.datos && S.datos.hoy) || hoyLocal(); }
+function negocio() { return (S.datos && S.datos.negocio) || { nombre: 'Telechange', frase: 'Casa de Cambios', logo: '' }; }
+function ajustes() { return (S.datos && S.datos.ajustes) || F.ajustes(); }
+function tasasCalc() {
+  const t = (S.datos && S.datos.tasas) || {}, v = x => x && x.valor;
+  return { usdtPesos: v(t.usdtPesos), usdtBolivares: v(t.usdtBolivares), tasaDiaria: v(t.tasaDiaria), dolarBcv: v(t.dolarBcv), euroBcv: v(t.euroBcv) };
+}
+function calculo() {
+  return F.calcular({ direccion: S.ui.dir, montoEn: S.ui.en, monto: num($('monto').value), referencia: S.ui.ref, tasas: tasasCalc(), ajustes: ajustes() });
+}
+
+// ───────── navegación ─────────
+const VISTAS = ['vPin', 'vCalc', 'vRegistro', 'vTasas', 'vAjustes'];
+function ir(v) {
+  VISTAS.forEach(x => $(x).classList.toggle('oculto', x !== v));
+  $('nav').classList.toggle('oculto', v === 'vPin');
+  document.querySelectorAll('nav.abajo button').forEach(b => { if (b.dataset.v === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  if (v === 'vTasas') llenarTasas();
+  if (v === 'vAjustes') llenarAjustes();
+  if (v === 'vRegistro') abrirRegistro();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('nav.abajo button').forEach(b => b.addEventListener('click', () => ir(b.dataset.v)));
+
+// ───────── PIN ─────────
+function pintarPin() {
+  const p = $('puntos'); p.textContent = '';
+  const n = Math.max(4, S.pin.length);
+  for (let i = 0; i < n; i++) p.append(el('span', { class: i < S.pin.length ? '' : 'v' }));
+  p.setAttribute('aria-label', S.pin.length + ' números escritos');
+}
+function armarTeclado() {
+  const t = $('teclado');
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'borrar', '0', 'entrar'].forEach(k => {
+    const b = el('button', { type: 'button' });
+    if (k === 'borrar') { b.setAttribute('aria-label', 'Borrar'); b.className = 'trans'; b.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12z"/><path d="M17 9l-5 6M12 9l5 6"/></svg>'; }
+    else if (k === 'entrar') { b.textContent = 'Entrar'; b.className = 'trans'; b.id = 'btnEntrar'; }
+    else b.textContent = k;
+    b.addEventListener('click', () => tecla(k));
+    t.append(b);
+  });
+}
+function tecla(k) {
+  $('errorPin').textContent = '';
+  if (k === 'borrar') S.pin = S.pin.slice(0, -1);
+  else if (k === 'entrar') return entrar();
+  else if (S.pin.length < 8) S.pin += k;
+  pintarPin();
+}
+document.addEventListener('keydown', e => {
+  if ($('vPin').classList.contains('oculto')) return;
+  if (/^\d$/.test(e.key)) tecla(e.key);
+  else if (e.key === 'Backspace') tecla('borrar');
+  else if (e.key === 'Enter') tecla('entrar');
+});
+async function entrar() {
+  if (S.pin.length < 4) { $('errorPin').textContent = 'El PIN tiene al menos 4 números'; return; }
+  const pin = S.pin; S.pin = ''; pintarPin();
+  $('teclado').classList.add('cargando');
+  try {
+    const d = await api('entrar', {}, pin);
+    S.verGanancia = false;
+    recibir(d);
+    ir('vCalc');
+  } catch (e) { $('errorPin').textContent = e.message; }
+  finally { $('teclado').classList.remove('cargando'); }
+}
+function salirLocal() {
+  S.token = null; borrar('token');
+  S.verGanancia = false;
+  ir('vPin');
+}
+
+// ───────── V2: "Entendí: …" bajo cada número y confirmación de valores raros ─────────
+// Willi escribe a veces a la gringa ("1,070.00"): bajo cada campo se ve cómo lo leyó la app.
+function entendi(id, decimales, avisoRango) {
+  const input = $(id); if (!input) return;
+  let s = document.getElementById('ent-' + id);
+  if (!s) {
+    s = el('span', { class: 'entendi', id: 'ent-' + id, 'aria-live': 'polite' });
+    const caja = input.closest('.campo, .mini, .item') || input;
+    caja.insertAdjacentElement('afterend', s);
+  }
+  const txt = input.value.trim();
+  s.textContent = ''; s.classList.remove('mal');
+  if (!txt) return;
+  const n = num(txt);
+  if (!isFinite(n)) { s.classList.add('mal'); s.textContent = 'No entendí ese número. Ejemplos: 1.070,00 o 1,070.00'; return; }
+  const dec = typeof decimales === 'function' ? decimales(n) : decimales;
+  s.append('Entendí: ', el('b', {}, F.formato(n, dec)));
+  const aviso = avisoRango ? avisoRango(n) : null;
+  if (aviso) s.append(el('span', { class: 'ojo-rango' }, ' · ' + aviso));
+}
+const decTasa = n => (Math.round(n * 100) === n * 100 ? 2 : 4);
+function ultimos() {
+  const t = (S.datos && S.datos.tasas) || {}, v = x => x ? x.valor : null;
+  return { usdtPesos: v(t.usdtPesos), usdtBolivares: v(t.usdtBolivares), tasaDiaria: v(t.tasaDiaria), dolarBcv: v(t.dolarBcv), euroBcv: v(t.euroBcv) };
+}
+/** Aviso corto si el valor se sale del rango de sentido común (el mismo que revisa el servidor). */
+function rangoCampo(campo) {
+  return n => {
+    const nuevos = {}; nuevos[campo] = n;
+    if (campo === 'tasaDiaria') { nuevos.usdtPesos = num($('inUsdtPesos').value); nuevos.usdtBolivares = num($('inUsdtBs').value); }
+    const a = F.revisarRangos(nuevos, ultimos()).find(x => x.campo === campo);
+    return a ? (campo === 'tasaDiaria' ? 'muy lejos de la tasa Binance' : 'muy distinto al último (' + F.formato(a.anterior, 2) + ')') : null;
+  };
+}
+/** Llama al servidor y, si un valor se sale del rango, pregunta "¿Seguro?" antes de reenviarlo confirmado. */
+async function conConfirmacion(action, data) {
+  try { return await api(action, data); }
+  catch (e) {
+    if (!e.confirmar) throw e;
+    if (!window.confirm(e.confirmar.map(a => a.texto).join('\n\n') + '\n\n¿Lo guardo de todas formas?')) { const x = new Error('No se guardó. Revisa el número.'); throw x; }
+    return api(action, Object.assign({}, data || {}, { confirmado: true }));
+  }
+}
+
+// ───────── calculadora ─────────
+function marcar(segId, valor) { document.querySelectorAll('#' + segId + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === valor))); }
+function enlazarSeg(segId, clave) {
+  document.querySelectorAll('#' + segId + ' button').forEach(b => b.addEventListener('click', () => {
+    // al cambiar la moneda del monto se borra el número, para no confundir pesos con bolívares
+    if (clave === 'en' && S.ui.en !== b.dataset.v) $('monto').value = '';
+    S.ui[clave] = b.dataset.v; guardar('ui', S.ui); pintarCalc();
+  }));
+}
+enlazarSeg('segDir', 'dir'); enlazarSeg('segEn', 'en'); enlazarSeg('segRef', 'ref');
+$('monto').addEventListener('input', () => pintarCalc());
+function entendiMonto() { entendi('monto', S.ui.en === 'pesos' ? 0 : 2); }
+$('monto').addEventListener('blur', () => {
+  const n = num($('monto').value);
+  if (n > 0) $('monto').value = S.ui.en === 'pesos' ? F.pesos(n) : F.formato(n, 2);
+});
+
+function filaRes(etq, val, fuerte) { return el('div', { class: 'fila' + (fuerte ? ' fuerte' : '') }, el('span', {}, etq), el('span', {}, val)); }
+
+function avisosComunes(cont, enTasas) {
+  cont.textContent = '';
+  const t = (S.datos && S.datos.tasas) || {}, a = ajustes(), tc = tasasCalc();
+  const tB = F.tasaBinance(tc.usdtPesos, tc.usdtBolivares);
+  const av = tB > 0 && tc.tasaDiaria > 0 ? F.avisoMargen(tB, tc.tasaDiaria, a) : null;
+  if (av && (enTasas || S.ui.dir === 'CO-VE')) {
+    const b = el('button', { class: 'btn chico prin', style: 'min-height:44px;font-size:14px' }, 'Usar ' + F.tasa(av.sugerida));
+    b.addEventListener('click', () => guardarTasas({ tasaDiaria: av.sugerida }));
+    cont.append(el('div', { class: 'aviso rojo', role: 'alert' },
+      el('b', {}, 'Tu tasa quedó por debajo del ' + F.formato(a.margen * 100, 0) + ' %' + (a.limpio ? ' limpio' : '')),
+      el('span', {}, 'Binance cambió: con ' + F.tasa(tc.tasaDiaria) + ' ahora ganas ' + F.porcentaje(av.margen) + '. Para volver al ' + F.formato(a.margen * 100, 0) + ' % la tasa debe ser ' + F.tasa(av.sugerida) + '.'),
+      b));
+  }
+  if (t.tasaDiaria && !t.tasaDiaria.deHoy) cont.append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, 'Todavía no guardas la tasa de hoy'), el('span', {}, 'La calculadora usa la del ' + F.fechaLarga(t.tasaDiaria.fecha) + ' (' + F.tasa(t.tasaDiaria.valor) + ') hasta que la guardes.')));
+  if (!t.tasaDiaria && S.datos) cont.append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, 'Falta la tasa diaria'), el('span', {}, 'Escríbela en Tasas para poder calcular.')));
+  if (enTasas && t.usdtPesos && !t.usdtPesos.deHoy) cont.append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, 'Los precios de Binance no son de hoy'), el('span', {}, 'Son del ' + F.fechaLarga(t.usdtPesos.fecha) + '. Escríbelos a mano si cambiaron.')));
+  if (t.dolarBcv && !t.dolarBcv.deHoy) cont.append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, 'El dólar BCV no es de hoy'), el('span', {}, 'Se usa el del ' + F.fechaLarga(t.dolarBcv.fecha) + '. Puedes escribirlo a mano en Tasas.')));
+}
+
+function pintarCalc() {
+  const neg = negocio();
+  $('calcNombre').textContent = neg.nombre;
+  const tc = tasasCalc();
+  $('calcSub').textContent = F.fechaLarga(hoy()) + (tc.tasaDiaria ? ' · Tasa ' + F.tasa(tc.tasaDiaria) : '');
+  marcar('segDir', S.ui.dir); marcar('segEn', S.ui.en); marcar('segRef', S.ui.ref);
+  $('montoUni').textContent = S.ui.en === 'pesos' ? 'pesos' : S.ui.en === 'bolivares' ? 'bolívares' : 'dólares';
+  avisosComunes($('avisosCalc'), false);
+  entendiMonto();
+  const r = calculo(), box = $('resultado');
+  // V2: si la ganancia no tiene sentido casi siempre es una tasa mal escrita. Sin decir el % (el cliente puede ver la pantalla).
+  if (F.avisoGanancia(r)) $('avisosCalc').querySelectorAll('.aviso.rojo').forEach(x => x.remove()); // un solo aviso rojo: este ya cubre el de margen
+  if (F.avisoGanancia(r)) $('avisosCalc').prepend(el('div', { class: 'aviso rojo', role: 'alert' }, el('b', {}, 'Revisa las tasas'), el('span', {}, 'La ganancia sale fuera de lo normal (más de ' + F.formato(F.GANANCIA_MAX * 100, 0) + ' % o negativa). Abre el ojo para ver el detalle y revisa los precios en Tasas.')));
+  box.textContent = '';
+  const btns = [$('btnCompartir'), $('btnCopiar')];
+  if (!r.ok) {
+    box.append(el('div', { class: 'vacio' }, r.error));
+    btns.forEach(b => b.disabled = true);
+    $('ganancia').textContent = '';
+    return;
+  }
+  btns.forEach(b => b.disabled = false);
+  const t = F.tarjeta(r, neg, hoy());
+  box.append(
+    el('div', { class: 'fila' }, el('span', {}, t.arriba.etiqueta + (t.arriba.nota ? ' ' + t.arriba.nota : '')), el('span', {}, t.arriba.valor + ' ' + nombreUni(t.arriba.unidad))),
+    el('div', { class: 'alto' }, el('span', {}, t.grande.etiqueta), el('span', { class: 'grande' }, t.grande.valor + ' ', el('small', {}, nombreUni(t.grande.unidad)))),
+    ...t.filas.map(f => filaRes(f.etiqueta, f.valor.replace(/ Bs$/, ' bolívares'), f.fuerte))
+  );
+  // ganancia (solo Willi)
+  const g = $('ganancia'); g.textContent = '';
+  g.append(
+    el('div', { class: 'dos' },
+      el('div', { class: 'g' }, el('div', { class: 'etq' }, 'Ganancia'), el('div', { class: 'v' }, F.pesos(r.ganancia) + ' ', el('small', {}, 'pesos')), el('div', { class: 'p' }, F.porcentaje(r.gananciaPct))),
+      el('div', { class: 'g' }, el('div', { class: 'etq' }, 'Ganancia real'), el('div', { class: 'v' }, F.pesos(r.gananciaReal) + ' ', el('small', {}, 'pesos')), el('div', { class: 'p' }, F.porcentaje(r.gananciaRealPct)))),
+    el('div', { class: 'nota' }, (r.direccion === 'CO-VE'
+      ? 'Pago móvil ' + F.formato(ajustes().pagoMovil * 100, 1) + ' %: ' + F.bolivares(r.pagoMovilBs) + ' bolívares ≈ ' + F.pesos(r.pagoMovilPesos) + ' pesos'
+      : 'Sin pago móvil en este sentido') + ' · Tasa Binance ' + F.tasa(r.tB, 4)));
+  pintarOjo();
+  prepararTarjeta();
+}
+const nombreUni = u => u === 'Bs' ? 'bolívares' : u;
+
+function pintarOjo() {
+  $('ganancia').classList.toggle('oculto', !S.verGanancia);
+  const b = $('btnOjo');
+  b.setAttribute('aria-pressed', String(S.verGanancia));
+  b.setAttribute('aria-label', S.verGanancia ? 'Ocultar ganancia' : 'Mostrar ganancia');
+  b.innerHTML = S.verGanancia
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+}
+$('btnOjo').addEventListener('click', () => { S.verGanancia = !S.verGanancia; pintarOjo(); });
+
+// ───────── tarjeta (canvas) ─────────
+const ANCHO = 1080; // el alto se calcula según lo que lleva la tarjeta
+let logoCache = { src: null, img: null };
+function cargarLogo() {
+  const src = negocio().logo || 'logo.png';
+  if (logoCache.src === src && logoCache.img) return Promise.resolve(logoCache.img);
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => { logoCache = { src, img }; res(img); };
+    img.onerror = () => res(null);
+    img.src = src;
+  });
+}
+function fuentesListas() {
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  const f = ['700 52px "Space Grotesk"', '500 38px "Space Grotesk"', '400 30px Inter', '500 30px Inter', '700 28px Inter'];
+  return Promise.race([Promise.all(f.map(x => document.fonts.load(x))), new Promise(r => setTimeout(r, 2500))]);
+}
+function redondeado(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function ajustar(c, texto, fuente, tam, max) { let t = tam; c.font = fuente.replace('{t}', t); while (c.measureText(texto).width > max && t > 20) { t -= 2; c.font = fuente.replace('{t}', t); } return t; }
+
+// Logo libre (sin recorte circular): se dibuja completo, respetando su forma y su fondo transparente.
+// Diseño de la cabecera: 'lado' (logo a la izquierda + nombre y frase) o 'arriba' (logo grande centrado).
+let DISENO_LOGO = 'arriba'; // aprobado: logo grande centrado, debajo la frase
+function cajaLogo(logo, maxW, maxH) {
+  if (!logo) return { w: maxH, h: maxH };
+  const s = Math.min(maxW / logo.width, maxH / logo.height);
+  return { w: Math.round(logo.width * s), h: Math.round(logo.height * s) };
+}
+async function dibujarTarjeta(t) {
+  await fuentesListas();
+  const logo = await cargarLogo();
+  const NUM = '"Space Grotesk", system-ui, sans-serif', TXT = 'Inter, system-ui, sans-serif';
+  const P = 56, xi = P + 48, xd = ANCHO - P - 48, anchoIn = xd - xi;
+  // 1) medir: la tarjeta crece o se encoge según lo que lleva (sin espacio blanco sobrante)
+  const arriba = DISENO_LOGO === 'arriba';
+  const cL = arriba ? cajaLogo(logo, 560, 330) : cajaLogo(logo, 270, 210);
+  const altoCab = arriba ? cL.h + 70 : cL.h;
+  const top = P + altoCab + 40;
+  const yFila1 = top + 48 + 52;
+  const yB = yFila1 + (t.arriba.nota ? 64 : 36) + 16, hB = 228;
+  const yF0 = yB + hB + 36, hF = 96;
+  const bot = yF0 + hF * t.filas.length + 32;
+  const yP = bot + 40 + 30;
+  const alto = yP + 30 + P;
+  const cv = document.createElement('canvas'); cv.width = ANCHO; cv.height = alto;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#0b0f1a'; c.fillRect(0, 0, ANCHO, alto);
+  c.textBaseline = 'alphabetic';
+  // 2) cabecera
+  const sombraLogo = () => { c.shadowColor = 'rgba(111,214,255,0.35)'; c.shadowBlur = 28; };
+  if (arriba) {
+    const x = (ANCHO - cL.w) / 2;
+    if (logo) { c.save(); sombraLogo(); c.drawImage(logo, x, P, cL.w, cL.h); c.restore(); }
+    c.textAlign = 'center'; c.fillStyle = '#6fd6ff';
+    const sub = t.frase || 'Casa de Cambios'; // el logo ya trae el nombre y el lema
+    ajustar(c, sub, '500 {t}px ' + TXT, 30, ANCHO - 2 * P); c.fillText(sub, ANCHO / 2, P + cL.h + 52);
+  } else {
+    if (logo) { c.save(); sombraLogo(); c.drawImage(logo, P, P, cL.w, cL.h); c.restore(); }
+    const xN = P + cL.w + 32, maxT = ANCHO - xN - P, yM = P + cL.h / 2;
+    c.textAlign = 'left';
+    c.fillStyle = '#ffffff'; ajustar(c, t.nombre, '700 {t}px ' + NUM, 48, maxT); c.fillText(t.nombre, xN, yM - 6);
+    c.fillStyle = '#6fd6ff'; ajustar(c, t.frase, '500 {t}px ' + TXT, 28, maxT); c.fillText(t.frase, xN, yM + 40);
+  }
+  // 3) cuerpo blanco
+  c.fillStyle = '#ffffff'; redondeado(c, P, top, ANCHO - 2 * P, bot - top, 44); c.fill();
+  c.font = '400 30px ' + TXT; c.fillStyle = '#4d5f6d'; c.textAlign = 'left';
+  c.fillText(t.arriba.etiqueta, xi, yFila1);
+  if (t.arriba.nota) { c.font = '400 24px ' + TXT; c.fillText(t.arriba.nota, xi, yFila1 + 34); }
+  c.textAlign = 'right';
+  c.font = '500 32px ' + TXT; const wU = c.measureText(' ' + t.arriba.unidad).width;
+  c.fillStyle = '#4d5f6d'; c.fillText(' ' + t.arriba.unidad, xd, yFila1);
+  c.fillStyle = '#13222e'; ajustar(c, t.arriba.valor, '700 {t}px ' + NUM, 52, anchoIn * 0.55); c.fillText(t.arriba.valor, xd - wU, yFila1);
+  c.fillStyle = '#e8f7fd'; redondeado(c, xi, yB, anchoIn, hB, 32); c.fill();
+  c.textAlign = 'left'; c.fillStyle = '#3d4b56'; c.font = '500 30px ' + TXT;
+  c.fillText(t.grande.etiqueta, xi + 40, yB + 64);
+  const uniG = ' ' + t.grande.unidad;
+  c.font = '700 52px ' + NUM; const wUG = c.measureText(uniG).width;
+  const tG = ajustar(c, t.grande.valor, '700 {t}px ' + NUM, 96, anchoIn - 80 - wUG);
+  c.fillStyle = '#0b0f1a'; c.fillText(t.grande.valor, xi + 40, yB + hB - 44);
+  const wV = c.measureText(t.grande.valor).width;
+  c.font = '700 ' + Math.round(tG * 0.54) + 'px ' + NUM; c.fillText(uniG, xi + 40 + wV, yB + hB - 44);
+  t.filas.forEach((f, i) => {
+    const yF = yF0 + hF * i, base = yF + hF / 2 + 12;
+    c.textAlign = 'left'; c.font = '400 32px ' + TXT; c.fillStyle = '#4d5f6d'; c.fillText(f.etiqueta, xi, base);
+    c.textAlign = 'right'; c.fillStyle = '#13222e';
+    ajustar(c, f.valor, (f.fuerte ? '700' : '500') + ' {t}px ' + NUM, f.fuerte ? 44 : 38, anchoIn * 0.62);
+    c.fillText(f.valor, xd, base);
+    if (i < t.filas.length - 1) { c.fillStyle = '#e3e8ec'; c.fillRect(xi, yF + hF - 1, anchoIn, 2); }
+  });
+  // 4) pie: fecha y etiqueta roja
+  c.textAlign = 'left'; c.font = '400 30px ' + TXT; c.fillStyle = '#c9d3de'; c.fillText(t.fecha, P, yP + 10);
+  c.font = '700 28px ' + TXT; const wE = c.measureText(t.etiquetaValida).width;
+  const wP = wE + 56, hP = 60;
+  c.fillStyle = '#c8161f'; redondeado(c, ANCHO - P - wP, yP - hP / 2, wP, hP, 30); c.fill();
+  c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.fillText(t.etiquetaValida, ANCHO - P - wP / 2, yP + 10);
+  return cv;
+}
+
+// La tarjeta se prepara antes de tocar "Compartir": así el celular abre el menú al instante (iPhone lo exige).
+let lista = { clave: null, archivo: null, url: null };
+let tPrep = null;
+function claveTarjeta() { const r = calculo(); return r.ok ? JSON.stringify([F.tarjeta(r, negocio(), hoy()), negocio().logo ? negocio().logo.length : 0]) : null; }
+function prepararTarjeta() { clearTimeout(tPrep); tPrep = setTimeout(() => generar().catch(() => {}), 350); }
+let enCurso = { clave: null, p: null };
+function generar() {
+  const r = calculo(); if (!r.ok) return Promise.resolve(null);
+  const clave = claveTarjeta();
+  if (lista.clave === clave && lista.archivo) return Promise.resolve(lista);
+  if (enCurso.clave === clave && enCurso.p) return enCurso.p; // ya se está dibujando esta misma tarjeta
+  enCurso = { clave, p: dibujarYGuardar(r, clave).finally(() => { if (enCurso.clave === clave) enCurso = { clave: null, p: null }; }) };
+  return enCurso.p;
+}
+async function dibujarYGuardar(r, clave) {
+  const t = F.tarjeta(r, negocio(), hoy());
+  const cv = await dibujarTarjeta(t);
+  const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+  const nombre = (negocio().nombre || 'tarjeta').replace(/[^\w-]+/g, '') + '-' + hoy() + '.png';
+  const vieja = lista.url;
+  if (vieja) setTimeout(() => URL.revokeObjectURL(vieja), 120000); // la tarjeta abierta en pantalla sigue viéndose
+  lista ={ clave, archivo: new File([blob], nombre, { type: 'image/png' }), url: URL.createObjectURL(blob) };
+  return lista;
+}
+function descargar(l) {
+  const a = el('a', { href: l.url, download: l.archivo.name }); document.body.append(a); a.click(); a.remove();
+}
+// Un solo botón, "Enviar por WhatsApp":
+//  1) Abre el menú Compartir del aparato con la tarjeta ya adjunta. En el celular sale WhatsApp; en la computadora
+//     (Chrome o Edge en Windows) sale la app de WhatsApp de escritorio: se elige el contacto y la tarjeta ya viene.
+//  2) Si el navegador no tiene ese menú: copia la tarjeta, abre WhatsApp Web y se pega con Ctrl+V.
+//  3) Si tampoco deja copiar imágenes: la descarga.
+function puedeCopiarImagen() { return !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem); }
+async function enviar() {
+  if (!calculo().ok) return;
+  if (!revisarClienteCampo()) return;
+  registrarEnvio(); // queda "Cotizada" en el Registro (sin esperar: no frena el menú de compartir)
+  const listo = lista.clave === claveTarjeta() && lista.archivo;
+  const l = listo ? lista : await generar();
+  if (!l) return;
+  const datos = { files: [l.archivo] };
+  if (navigator.canShare && navigator.canShare(datos)) {
+    try { await navigator.share(datos); return; }
+    catch (e) { if (e.name === 'AbortError') return; } // Willi cerró el menú: no se hace nada
+  }
+  if (puedeCopiarImagen()) {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': l.archivo })]);
+      window.open('https://web.whatsapp.com/', 'telechange_whatsapp');
+      toast('Tarjeta copiada. En WhatsApp abre el chat del cliente y presiona Ctrl+V.', 8000);
+      return;
+    } catch (e) {}
+  }
+  descargar(l);
+  toast('La tarjeta se descargó. En el chat de WhatsApp adjúntala con el clip 📎.', 8000);
+}
+$('btnCompartir').addEventListener('click', enviar);
+$('btnCerrar').addEventListener('click', () => $('velo').classList.add('oculto'));
+$('velo').addEventListener('click', e => { if (e.target === $('velo')) $('velo').classList.add('oculto'); });
+
+$('btnCopiar').addEventListener('click', async () => {
+  const r = calculo(); if (!r.ok) return;
+  if (!revisarClienteCampo()) return;
+  registrarEnvio();
+  const texto = F.mensajeTexto(r, negocio(), hoy());
+  try { await navigator.clipboard.writeText(texto); }
+  catch (e) {
+    const ta = el('textarea', { style: 'position:fixed;opacity:0' }); ta.value = texto; document.body.append(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e2) {} ta.remove();
+  }
+  toast('Texto copiado. Pégalo en WhatsApp.');
+});
+
+// ───────── registro de operaciones (V3) ─────────
+// Al enviar la tarjeta (o copiar el texto) la operación queda "Cotizada". Willi la marca "Procesada" o "Cancelada" en Registro.
+// Del cliente solo el nombre o apodo: nada de cédulas, cuentas ni teléfonos.
+const nuevoId = () => 'op_' + Array.from(crypto.getRandomValues(new Uint8Array(9)), b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join('');
+let ultimoEnvio = { clave: null, id: null, cliente: '' };
+function revisarClienteCampo() {
+  const r = F.revisarCliente($('cliente').value);
+  if (!r.ok) { toast(r.error, 5000); $('cliente').focus(); return false; }
+  return true;
+}
+function payloadOperacion(id) {
+  const r = calculo(), eq = F.tarjeta(r, negocio(), hoy()).filas[2].valor;
+  return { id, cliente: F.revisarCliente($('cliente').value).valor, nota: '', direccion: r.direccion, montoEn: r.montoEn,
+    pesos: r.pesos, bolivares: r.bolivares, tasa: r.tasa, tB: r.tB, referencia: S.ui.ref, equivalencia: eq,
+    ganancia: r.ganancia, gananciaReal: r.gananciaReal };
+}
+function registrarEnvio() {
+  const clave = claveTarjeta(), cliente = F.revisarCliente($('cliente').value).valor;
+  if (ultimoEnvio.clave === clave) {
+    // misma tarjeta enviada otra vez: no se duplica; si cambió el nombre del cliente, se actualiza
+    if (cliente !== ultimoEnvio.cliente) { ultimoEnvio.cliente = cliente; api('cambiarEstado', { id: ultimoEnvio.id, cliente }).catch(() => {}); }
+    return;
+  }
+  const op = payloadOperacion(nuevoId());
+  ultimoEnvio = { clave, id: op.id, cliente };
+  api('registrarOperacion', op).then(d => anotarCliente(cliente)).catch(e => {
+    if (e.sinRed) { const c = leer('cola', []); c.push(op); guardar('cola', c); toast('Sin conexión: la operación se guardará en el Registro cuando vuelva la señal.', 5000); }
+    else toast('No se pudo guardar en el Registro: ' + e.message, 6000);
+  });
+}
+async function vaciarCola() {
+  const c = leer('cola', []); if (!c.length) return;
+  const quedan = [];
+  for (const op of c) { try { await api('registrarOperacion', op); } catch (e) { if (e.sinRed) quedan.push(op); } }
+  guardar('cola', quedan);
+  if (!quedan.length) toast('Las operaciones pendientes ya quedaron en el Registro.');
+}
+function anotarCliente(n) {
+  if (!n || !S.datos) return;
+  const l = S.datos.clientes || (S.datos.clientes = []);
+  if (l.indexOf(n) < 0) { l.unshift(n); pintarClientes(); }
+}
+function pintarClientes() {
+  const dl = $('listaClientes'); dl.textContent = '';
+  ((S.datos && S.datos.clientes) || []).forEach(c => dl.append(el('option', { value: c })));
+}
+$('cliente').addEventListener('input', () => { const r = F.revisarCliente($('cliente').value); $('cliente').style.borderColor = r.ok ? '' : '#ff8a8f'; });
+
+let REG = { periodo: leer('periodo', 'hoy'), datos: null };
+function rangoPeriodo() { const h = hoy(); return REG.periodo === 'mes' ? { desde: h.slice(0, 8) + '01', hasta: h } : { desde: h, hasta: h }; }
+async function abrirRegistro() {
+  marcar('segPeriodo', REG.periodo);
+  pintarOjoReg();
+  $('regResumen').textContent = 'Cargando…';
+  await vaciarCola();
+  try { REG.datos = await api('listarOperaciones', rangoPeriodo()); if (S.datos) S.datos.clientes = REG.datos.clientes; pintarClientes(); pintarRegistro(); }
+  catch (e) { $('regResumen').textContent = e.sinRed ? 'Sin conexión: el Registro necesita señal.' : e.message; }
+}
+document.querySelectorAll('#segPeriodo button').forEach(b => b.addEventListener('click', () => { REG.periodo = b.dataset.v; guardar('periodo', REG.periodo); abrirRegistro(); }));
+function pintarOjoReg() {
+  const b = $('btnOjoReg'); b.setAttribute('aria-pressed', String(S.verGanancia)); b.setAttribute('aria-label', S.verGanancia ? 'Ocultar ganancia' : 'Mostrar ganancia');
+  b.innerHTML = $('btnOjo').innerHTML;
+}
+$('btnOjoReg').addEventListener('click', () => { S.verGanancia = !S.verGanancia; pintarOjo(); pintarOjoReg(); if (REG.datos) pintarRegistro(); });
+const flecha = d => d === 'VE-CO' ? 'Venezuela → Colombia' : 'Colombia → Venezuela';
+function cifra(etq, val) { return el('div', { class: 'cifra' }, el('span', { class: 'etq' }, etq), el('span', { class: 'v' }, val)); }
+function pintarRegistro() {
+  const d = REG.datos, r = d.resumen, box = $('regResumen');
+  box.textContent = '';
+  box.append(
+    el('div', { class: 'entre' }, el('h2', {}, REG.periodo === 'mes' ? 'Este mes' : 'Hoy, ' + F.fechaLarga(hoy())), el('span', { class: 'nota' }, 'Solo procesadas')),
+    el('div', { class: 'cifras' },
+      cifra('Operaciones', String(r.procesadas)),
+      cifra('Total pesos', F.pesos(r.pesos)),
+      cifra('Total bolívares', F.bolivares(r.bolivares)),
+      cifra('Ganancia real', S.verGanancia ? F.pesos(r.gananciaReal) + ' pesos' : '•••')),
+    el('div', {},
+      el('div', { class: 'fila-lista' }, el('span', {}, 'Colombia → Venezuela'), el('span', {}, r.porDireccion['CO-VE'].operaciones + ' · ' + F.pesos(r.porDireccion['CO-VE'].pesos) + ' pesos')),
+      el('div', { class: 'fila-lista' }, el('span', {}, 'Venezuela → Colombia'), el('span', {}, r.porDireccion['VE-CO'].operaciones + ' · ' + F.bolivares(r.porDireccion['VE-CO'].bolivares) + ' bolívares')),
+      ...Object.keys(r.porPago).map(k => el('div', { class: 'fila-lista' }, el('span', {}, 'Entró por ' + k), el('span', {}, String(r.porPago[k]))))),
+  );
+  $('regPendientes').textContent = '';
+  if (r.cotizadas) $('regPendientes').append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, r.cotizadas + (r.cotizadas === 1 ? ' cotizada sin cerrar' : ' cotizadas sin cerrar')), el('span', {}, 'Márcalas como procesadas o canceladas cuando el cliente confirme.')));
+  const lista = $('regLista'); lista.textContent = '';
+  if (!d.operaciones.length) lista.append(el('div', { class: 'aviso gris' }, el('span', {}, REG.periodo === 'mes' ? 'Todavía no hay operaciones este mes.' : 'Todavía no hay operaciones hoy. Se guardan solas al enviar la tarjeta.')));
+  d.operaciones.forEach(o => lista.append(tarjetaOp(o)));
+  const cl = $('regClientes'); cl.textContent = '';
+  cl.classList.toggle('oculto', !r.clientes.length);
+  if (r.clientes.length) cl.append(el('h2', {}, 'Mejores clientes'), ...r.clientes.slice(0, 8).map(c =>
+    el('div', { class: 'fila-lista' }, el('span', {}, c.cliente), el('span', {}, c.operaciones + (c.operaciones === 1 ? ' envío · ' : ' envíos · ') + F.pesos(c.pesos) + ' pesos'))));
+}
+function tarjetaOp(o) {
+  const cuando = REG.periodo === 'mes' ? F.fechaLarga(o.fecha).split(', ')[1] + ' ' + o.hora : o.hora;
+  const acc = el('div', { class: 'acc' });
+  if (o.estado === 'Cotizada') {
+    const bP = el('button', { class: 'btn cel' }, 'Procesada'), bC = el('button', { class: 'btn' }, 'Cancelada');
+    bP.addEventListener('click', () => editarOp(o, 'Procesada'));
+    bC.addEventListener('click', () => conCarga(bC, async () => { await api('cambiarEstado', { id: o.id, estado: 'Cancelada' }); toast('Operación cancelada.'); abrirRegistro(); }));
+    acc.append(bP, bC);
+  }
+  const bE = el('button', { class: 'btn' }, 'Editar'); bE.addEventListener('click', () => editarOp(o)); acc.append(bE);
+  return el('article', { class: 'op' },
+    el('div', { class: 'l1' }, el('span', { class: 'cli' + (o.cliente ? '' : ' sin') }, o.cliente || 'Sin nombre'), el('span', { class: 'estado ' + o.estado }, o.estado)),
+    el('div', { class: 'det' }, cuando + ' · ' + flecha(o.direccion)),
+    el('div', { class: 'det' }, el('b', {}, F.pesos(o.pesos)), ' pesos · ', el('b', {}, F.bolivares(o.bolivares)), ' bolívares · tasa ', el('b', {}, F.tasa(o.tasa))),
+    (o.pago || o.nota || S.verGanancia) ? el('div', { class: 'det' }, [o.pago ? 'Entró por ' + o.pago : '', o.nota, S.verGanancia ? 'Ganancia real ' + F.pesos(o.gananciaReal) + ' pesos' : ''].filter(Boolean).join(' · ')) : null,
+    acc);
+}
+function editarOp(o, estadoNuevo) {
+  const cuerpo = $('ventCuerpo'); cuerpo.textContent = '';
+  $('ventTit').textContent = estadoNuevo === 'Procesada' ? 'Marcar como procesada' : 'Editar operación';
+  const iC = el('input', { class: 'txt-in', id: 'opCliente', list: 'listaClientes', maxlength: '40', autocomplete: 'off' }); iC.value = o.cliente;
+  const sP = el('select', { class: 'txt-in', id: 'opPago' }, el('option', { value: '' }, '— Sin indicar —'), ...F.FORMAS_PAGO.map(f => el('option', { value: f }, f))); sP.value = o.pago || '';
+  const sE = el('select', { class: 'txt-in', id: 'opEstado' }, ...F.ESTADOS.map(f => el('option', { value: f }, f))); sE.value = estadoNuevo || o.estado;
+  const iN = el('input', { class: 'txt-in', id: 'opNota', maxlength: '80', autocomplete: 'off', placeholder: 'Ej.: la de la mamá (sin números de cuenta)' }); iN.value = o.nota;
+  const b = el('button', { class: 'btn prin' }, 'Guardar');
+  b.addEventListener('click', () => conCarga(b, async () => {
+    const c = F.revisarCliente(iC.value), n = F.revisarNota(iN.value);
+    if (!c.ok) throw new Error(c.error); if (!n.ok) throw new Error(n.error);
+    await api('cambiarEstado', { id: o.id, estado: sE.value, pago: sP.value, cliente: c.valor, nota: n.valor });
+    $('velo').classList.add('oculto'); anotarCliente(c.valor); toast('Operación guardada.'); abrirRegistro();
+  }));
+  cuerpo.append(
+    el('div', { class: 'nota' }, flecha(o.direccion) + ' · ' + F.pesos(o.pesos) + ' pesos · ' + F.bolivares(o.bolivares) + ' bolívares · tasa ' + F.tasa(o.tasa)),
+    el('label', { class: 'grupo', for: 'opCliente' }, el('span', { class: 'etq' }, 'Cliente (nombre o apodo)'), iC),
+    el('label', { class: 'grupo', for: 'opPago' }, el('span', { class: 'etq' }, 'Por dónde entró la plata'), sP),
+    el('label', { class: 'grupo', for: 'opEstado' }, el('span', { class: 'etq' }, 'Estado'), sE),
+    el('label', { class: 'grupo', for: 'opNota' }, el('span', { class: 'etq' }, 'Nota corta (opcional)'), iN),
+    b);
+  $('velo').classList.remove('oculto'); (estadoNuevo ? sP : iC).focus();
+}
+
+// ───────── tasas ─────────
+function fuenteChip(spanId, d) {
+  const s = $(spanId);
+  if (!d) { s.textContent = ''; s.className = 'fuente'; return; }
+  const mano = /^Manual/.test(d.fuente || '');
+  s.className = 'fuente' + (mano ? ' mano' : '');
+  s.textContent = mano ? 'A mano' : (d.fuente || '') + (d.deHoy ? '' : ' · ' + F.fechaLarga(d.fecha).split(', ')[1]);
+}
+function llenarTasas() {
+  const t = (S.datos && S.datos.tasas) || {};
+  $('tasasFecha').textContent = F.fechaLarga(hoy());
+  $('bcvDolar').textContent = t.dolarBcv ? F.formato(t.dolarBcv.valor, 2) : '—';
+  $('bcvEuro').textContent = t.euroBcv ? F.formato(t.euroBcv.valor, 2) : '—';
+  $('bcvFuente').textContent = t.dolarBcv ? (/^Manual/.test(t.dolarBcv.fuente) ? 'A mano' : 'Automático') + (t.dolarBcv.deHoy ? '' : ' · del ' + F.fechaLarga(t.dolarBcv.fecha)) : 'Sin datos';
+  $('inDolar').value = t.dolarBcv ? F.formato(t.dolarBcv.valor, 2) : '';
+  $('inEuro').value = t.euroBcv ? F.formato(t.euroBcv.valor, 2) : '';
+  $('inUsdtPesos').value = t.usdtPesos ? F.formato(t.usdtPesos.valor, t.usdtPesos.valor % 1 ? 2 : 0) : '';
+  $('inUsdtBs').value = t.usdtBolivares ? F.formato(t.usdtBolivares.valor, 2) : '';
+  $('inDiaria').value = t.tasaDiaria ? F.tasa(t.tasaDiaria.valor) : '';
+  fuenteChip('fPesos', t.usdtPesos); fuenteChip('fBs', t.usdtBolivares);
+  const bl = t.binanceLeido;
+  $('binanceDecia').textContent = bl && (bl.pesos || bl.bolivares) ? 'Binance decía (' + bl.cuando.slice(11) + '): ' + (bl.pesos ? F.formato(bl.pesos, 2) + ' pesos' : '—') + ' · ' + (bl.bolivares ? F.formato(bl.bolivares, 2) + ' bolívares' : '—') + '. Lo que escribes a mano manda.' : 'Lo que escribes a mano manda.';
+  avisosComunes($('avisosTasas'), true);
+  vivoTasas();
+}
+function vivoTasas() {
+  entendi('inUsdtPesos', 2, rangoCampo('usdtPesos'));
+  entendi('inUsdtBs', 2, rangoCampo('usdtBolivares'));
+  entendi('inDiaria', decTasa, rangoCampo('tasaDiaria'));
+  entendi('inDolar', 2, rangoCampo('dolarBcv'));
+  entendi('inEuro', 2, rangoCampo('euroBcv'));
+  const a = ajustes();
+  const tB = F.tasaBinance(num($('inUsdtPesos').value), num($('inUsdtBs').value));
+  $('tbVivo').textContent = tB > 0 ? F.tasa(tB, 4) : '—';
+  const tD = num($('inDiaria').value);
+  if (tB > 0 && tD > 0) {
+    $('pctVivo').textContent = F.porcentaje(F.margen(tB, tD));
+    $('pctVivo').append(el('span', { style: 'font-size:13px;color:var(--gris);font-weight:500' }, ' · real ' + F.porcentaje(F.margenReal(tB, tD, a.pagoMovil))));
+    $('pctVivo').style.color = F.avisoMargen(tB, tD, a) ? '#ffb3b6' : 'var(--celeste)';
+  } else { $('pctVivo').textContent = '—'; }
+  const s = tB > 0 ? F.tasaSugerida(tB, a) : null;
+  $('sugEtq').textContent = 'Sugerida para ' + F.formato(a.margen * 100, 0) + ' %' + (a.limpio ? ' limpio' : '');
+  $('sugVivo').textContent = s ? F.tasa(s.tasa) : '—';
+  $('btnUsarSug').textContent = s ? 'Usar ' + F.tasa(s.tasa) : 'Usar';
+  $('btnUsarSug').disabled = !s;
+  const otra = tB > 0 ? F.tasaSugerida(tB, Object.assign({}, a, { limpio: !a.limpio })).tasa : null;
+  $('sugNota').textContent = s ? 'Exacta: ' + F.tasa(s.exacta, 4) + ' (redondeo ' + a.redondeoCoVe + '). ' + (a.limpio ? 'Sin' : 'Con') + ' “10 % limpio” sería ' + F.tasa(otra) + '.' : 'Escribe los precios del USDT para ver la sugerida.';
+  const v = tB > 0 ? F.tasaVeCo(tB, a) : null;
+  $('vecoVivo').textContent = v && v.tasa > 0 ? F.tasa(v.tasa) : '—';
+  $('vecoNota').textContent = 'Tasa Binance − ' + F.formato(a.descuentoVeCo, 2) + (v ? ' = ' + F.tasa(v.exacta, 4) + ', redondeo ' + a.redondeoVeCo : '');
+}
+['inUsdtPesos', 'inUsdtBs', 'inDiaria', 'inDolar', 'inEuro'].forEach(id => $(id).addEventListener('input', vivoTasas));
+$('btnUsarSug').addEventListener('click', () => { const tB = F.tasaBinance(num($('inUsdtPesos').value), num($('inUsdtBs').value)); if (tB > 0) { $('inDiaria').value = F.tasa(F.tasaSugerida(tB, ajustes()).tasa); vivoTasas(); } });
+$('btnBcvMano').addEventListener('click', () => $('bcvMano').classList.toggle('oculto'));
+
+async function conCarga(boton, fn) {
+  boton.disabled = true; const txt = boton.textContent;
+  try { await fn(); } catch (e) { toast(e.message, 5000); } finally { boton.disabled = false; if (boton.textContent !== txt && !boton.querySelector('svg')) boton.textContent = txt; }
+}
+async function guardarTasas(d) {
+  const r = await conConfirmacion('guardarTasas', d);
+  recibir(r); toast('Tasas guardadas.');
+}
+$('btnGuardarTasas').addEventListener('click', () => conCarga($('btnGuardarTasas'), async () => {
+  const d = {}, t = (S.datos && S.datos.tasas) || {};
+  const cambio = (id, actual, dec) => { const v = num($(id).value); return v > 0 && (!actual || Math.abs(v - actual.valor) > Math.pow(10, -dec - 1)) ? v : null; };
+  const p = cambio('inUsdtPesos', t.usdtPesos, 2), b = cambio('inUsdtBs', t.usdtBolivares, 2), td = num($('inDiaria').value);
+  if (p) d.usdtPesos = p;
+  if (b) d.usdtBolivares = b;
+  if (td > 0) d.tasaDiaria = td;
+  if (!$('bcvMano').classList.contains('oculto')) {
+    const dl = cambio('inDolar', t.dolarBcv, 2), eu = cambio('inEuro', t.euroBcv, 2);
+    if (dl) d.dolarBcv = dl; if (eu) d.euroBcv = eu;
+  }
+  if (!Object.keys(d).length) throw new Error('Escribe al menos un dato para guardar');
+  await guardarTasas(d);
+  llenarTasas();
+}));
+$('btnBinance').addEventListener('click', () => conCarga($('btnBinance'), async () => { recibir(await conConfirmacion('leerBinance')); llenarTasas(); toast('Precios leídos de Binance.'); }));
+$('btnBcvLeer').addEventListener('click', () => conCarga($('btnBcvLeer'), async () => { recibir(await conConfirmacion('leerBcv')); llenarTasas(); toast('BCV actualizado.'); }));
+
+// ───────── ajustes ─────────
+let logoNuevo; // undefined: sin cambio · '': volver al original · data:...: nuevo
+['aMargen', 'aPm', 'aDesc'].forEach(id => $(id).addEventListener('input', () => entendiAjustes()));
+function entendiAjustes() { entendi('aMargen', 2); entendi('aPm', 2); entendi('aDesc', 2); }
+function llenarAjustes() {
+  const a = ajustes(), n = negocio();
+  $('aMargen').value = F.formato(a.margen * 100, 2).replace(/,00$/, '');
+  $('aPm').value = F.formato(a.pagoMovil * 100, 2).replace(/0$/, '');
+  $('aLimpio').checked = !!a.limpio;
+  $('aDesc').value = F.formato(a.descuentoVeCo, 2);
+  $('aRedCo').value = a.redondeoCoVe; $('aRedVe').value = a.redondeoVeCo;
+  $('aBinance').checked = a.binanceAuto !== false;
+  $('aNombre').value = n.nombre; $('aFrase').value = n.frase;
+  $('ajLogo').src = n.logo || 'logo.png';
+  $('btnLogoBase').classList.toggle('oculto', !n.logo);
+  logoNuevo = undefined;
+  entendiAjustes();
+  $('version').textContent = 'Telechange · pantalla ' + PANTALLA + ' · servidor ' + ((S.datos && S.datos.version) || '—') + ' · ' + ENTORNO + ' · respaldo automático cada día';
+}
+$('aLogo').addEventListener('change', async () => {
+  const f = $('aLogo').files[0]; if (!f) return;
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(f); });
+    // se conserva la forma y el fondo transparente del logo (sin recortarlo en círculo)
+    let data = '';
+    for (const max of [320, 260, 200, 160]) {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas'); cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      data = cv.toDataURL('image/webp', 0.85);
+      if (!/^data:image\/webp/.test(data)) data = cv.toDataURL('image/png');
+      if (data.length <= 44000) break;
+    }
+    if (data.length > 44000) throw new Error('muy pesado');
+    logoNuevo = data; $('ajLogo').src = data;
+  } catch (e) { toast('No pude leer esa imagen.'); }
+});
+$('btnLogoBase').addEventListener('click', () => { logoNuevo = ''; $('ajLogo').src = 'logo.png'; $('btnLogoBase').classList.add('oculto'); });
+$('btnGuardarAjustes').addEventListener('click', () => conCarga($('btnGuardarAjustes'), async () => {
+  const d = {
+    margen: num($('aMargen').value) / 100, pagoMovil: num($('aPm').value) / 100, limpio: $('aLimpio').checked,
+    descuentoVeCo: num($('aDesc').value), redondeoCoVe: $('aRedCo').value, redondeoVeCo: $('aRedVe').value,
+    binanceAuto: $('aBinance').checked, nombre: $('aNombre').value.trim(), frase: $('aFrase').value.trim()
+  };
+  if (!(d.margen >= 0) || !(d.pagoMovil >= 0) || !(d.descuentoVeCo >= 0)) throw new Error('Revisa los números: usa coma para los decimales (ej. 0,3)');
+  let r = await api('guardarAjustes', d);
+  if (logoNuevo !== undefined) { const l = await api('guardarLogo', { logo: logoNuevo }); r.negocio = l.negocio; }
+  recibir(r); llenarAjustes(); toast('Ajustes guardados.');
+}));
+$('btnPin').addEventListener('click', () => {
+  const cuerpo = $('ventCuerpo'); cuerpo.textContent = '';
+  $('ventTit').textContent = 'Cambiar PIN';
+  const i1 = el('input', { type: 'password', inputmode: 'numeric', class: 'txt-in', autocomplete: 'current-password', id: 'pinAct' });
+  const i2 = el('input', { type: 'password', inputmode: 'numeric', class: 'txt-in', autocomplete: 'new-password', id: 'pinNue' });
+  const b = el('button', { class: 'btn prin' }, 'Cambiar PIN');
+  b.addEventListener('click', () => conCarga(b, async () => {
+    if (!/^\d{4,8}$/.test(i2.value)) throw new Error('El PIN nuevo debe tener de 4 a 8 números');
+    await api('cambiarPin', { actual: i1.value, nuevo: i2.value });
+    $('velo').classList.add('oculto'); toast('PIN cambiado. Entra con el nuevo.'); salirLocal();
+  }));
+  cuerpo.append(el('label', { class: 'grupo', for: 'pinAct' }, el('span', { class: 'etq' }, 'PIN actual'), i1), el('label', { class: 'grupo', for: 'pinNue' }, el('span', { class: 'etq' }, 'PIN nuevo (4 a 8 números)'), i2), b);
+  $('velo').classList.remove('oculto'); i1.focus();
+});
+$('btnSalir').addEventListener('click', async () => { try { await api('salir'); } catch (e) {} salirLocal(); });
+
+// ───────── arranque ─────────
+function pintarTodo() {
+  const n = negocio();
+  ['pinLogo', 'calcLogo'].forEach(id => { $(id).src = n.logo || 'logo.png'; });
+  $('tPin').textContent = n.nombre; $('pinFrase').textContent = n.frase;
+  if (!$('vCalc').classList.contains('oculto') || S.token) pintarCalc();
+  if (!$('vTasas').classList.contains('oculto')) llenarTasas();
+  pintarClientes();
+}
+function iniciar() {
+  if (ENTORNO !== 'REAL') { $('barraPrueba').classList.remove('oculto'); $('chipEntorno').textContent = ENTORNO; $('chipEntorno').classList.add('prueba'); }
+  armarTeclado(); pintarPin();
+  if (S.token && S.datos) {
+    // Muestra al instante con lo guardado y actualiza en segundo plano (sirve sin señal)
+    ir('vCalc'); pintarTodo(); refrescar();
+  } else ir('vPin');
+  pintarOjo();
+}
+iniciar();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {}));
+}
+</script>
+</body>
+</html>

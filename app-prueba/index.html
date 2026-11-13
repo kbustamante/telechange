@@ -383,10 +383,12 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
   </div>
 </div>
 
+<script src="config.js"></script>
 <script src="formulas.js"></script>
 <script>
 'use strict';
-const API_URL = 'https://script.google.com/macros/s/AKfycbzGle5R2vx6tSLhoY9_zIKXS9K1rL7OLsM-loDkMDanMvfhWTGgKTDVs3YSKdxT89oM/exec';
+// La dirección del servidor vive en config.js (se puede cambiar desde la página de GitHub sin volver a armar la app)
+const API_URL = window.TELECHANGE_API || '';
 const ENTORNO = 'PRUEBA';
 const PANTALLA = 7;
 
@@ -420,7 +422,7 @@ const S = {
 
 // ───────── servidor ─────────
 async function api(action, data, conPin) {
-  if (!API_URL) throw new Error('Falta configurar la dirección del servidor');
+  if (!API_URL) throw new Error('Falta conectar el servidor: pon la dirección /exec en config.js (en GitHub).');
   const req = { action, data: data || {} };
   if (conPin) req.pin = conPin; else req.token = S.token;
   let r;
