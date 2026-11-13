@@ -40,7 +40,7 @@ main{flex:1;padding:20px 18px 110px;display:flex;flex-direction:column;gap:16px}
 h1{margin:0;font-family:var(--num);font-size:26px}
 h2{margin:0;font-size:15px}
 .cab{display:flex;align-items:center;gap:10px}
-.cab img{width:40px;height:40px;border-radius:20px;object-fit:cover}
+.cab img{width:52px;height:42px;object-fit:contain}
 .cab .nom{font-family:var(--num);font-size:18px;font-weight:700}
 .cab .sub{font-size:13px;color:var(--gris)}
 .chip{font-size:12px;font-weight:700;color:var(--fondo);background:var(--celeste);border-radius:999px;padding:4px 10px}
@@ -116,7 +116,7 @@ nav.abajo button{min-height:52px;display:flex;flex-direction:column;align-items:
 nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 /* PIN */
 .pin{flex:1;display:flex;flex-direction:column;align-items:center;gap:24px;padding:48px 28px 32px}
-.pin .logo{width:112px;height:112px;border-radius:56px;object-fit:cover;box-shadow:0 0 24px rgba(111,214,255,.5)}
+.pin .logo{width:220px;max-width:70vw;height:auto;object-fit:contain;filter:drop-shadow(0 0 14px rgba(111,214,255,.35))}
 .pin .nom{font-family:var(--num);font-size:30px;font-weight:700}
 .pin .frase{font-size:14px;color:var(--celeste);font-weight:500;text-align:center}
 .puntos{display:flex;gap:14px;min-height:16px}
@@ -145,10 +145,10 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 
   <!-- Entrada con PIN -->
   <section id="vPin" class="pin" aria-labelledby="tPin">
-    <img class="logo" id="pinLogo" src="logo.jpg" alt="Logo Telechange">
+    <img class="logo" id="pinLogo" src="logo.png" alt="Logo Telechange">
     <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
       <span class="nom" id="tPin">Telechange</span>
-      <span class="frase" id="pinFrase">Casa de Cambios · Tu envío rápido y seguro</span>
+      <span class="frase" id="pinFrase">Casa de Cambios</span>
     </div>
     <span style="color:var(--suave)">Escribe tu PIN</span>
     <div class="puntos" id="puntos" aria-live="polite"></div>
@@ -159,7 +159,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
   <!-- Calculadora -->
   <main id="vCalc" class="oculto" aria-label="Calculadora">
     <header class="cab">
-      <img id="calcLogo" src="logo.jpg" alt="">
+      <img id="calcLogo" src="logo.png" alt="">
       <div style="display:flex;flex-direction:column;flex:1">
         <span class="nom" id="calcNombre">Telechange</span>
         <span class="sub" id="calcSub"></span>
@@ -316,7 +316,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
     <section class="caja" aria-label="Negocio">
       <h2 style="font-size:13px;color:var(--gris)">NEGOCIO (SALE EN LA TARJETA)</h2>
       <div style="display:flex;align-items:center;gap:12px">
-        <img id="ajLogo" src="logo.jpg" alt="Logo actual" style="width:56px;height:56px;border-radius:28px;object-fit:cover">
+        <img id="ajLogo" src="logo.png" alt="Logo actual" style="width:72px;height:58px;object-fit:contain">
         <label class="btn chico" for="aLogo" style="cursor:pointer">Cambiar logo</label>
         <input type="file" id="aLogo" accept="image/*" class="sr">
         <button class="btn chico oculto" id="btnLogoBase">Usar el original</button>
@@ -356,7 +356,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 'use strict';
 const API_URL = 'https://script.google.com/macros/s/AKfycbzGle5R2vx6tSLhoY9_zIKXS9K1rL7OLsM-loDkMDanMvfhWTGgKTDVs3YSKdxT89oM/exec';
 const ENTORNO = 'PRUEBA';
-const PANTALLA = 4;
+const PANTALLA = 5;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
@@ -418,7 +418,7 @@ async function refrescar() {
 // ───────── datos derivados ─────────
 const hoyLocal = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); };
 function hoy() { return (S.datos && S.datos.hoy) || hoyLocal(); }
-function negocio() { return (S.datos && S.datos.negocio) || { nombre: 'Telechange', frase: 'Casa de Cambios · Tu envío rápido y seguro', logo: '' }; }
+function negocio() { return (S.datos && S.datos.negocio) || { nombre: 'Telechange', frase: 'Casa de Cambios', logo: '' }; }
 function ajustes() { return (S.datos && S.datos.ajustes) || F.ajustes(); }
 function tasasCalc() {
   const t = (S.datos && S.datos.tasas) || {}, v = x => x && x.valor;
@@ -625,10 +625,10 @@ function pintarOjo() {
 $('btnOjo').addEventListener('click', () => { S.verGanancia = !S.verGanancia; pintarOjo(); });
 
 // ───────── tarjeta (canvas) ─────────
-const ANCHO = 1080, ALTO = 1440;
+const ANCHO = 1080; // el alto se calcula según lo que lleva la tarjeta
 let logoCache = { src: null, img: null };
 function cargarLogo() {
-  const src = negocio().logo || 'logo.jpg';
+  const src = negocio().logo || 'logo.png';
   if (logoCache.src === src && logoCache.img) return Promise.resolve(logoCache.img);
   return new Promise(res => {
     const img = new Image();
@@ -645,65 +645,76 @@ function fuentesListas() {
 function redondeado(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 function ajustar(c, texto, fuente, tam, max) { let t = tam; c.font = fuente.replace('{t}', t); while (c.measureText(texto).width > max && t > 20) { t -= 2; c.font = fuente.replace('{t}', t); } return t; }
 
+// Logo libre (sin recorte circular): se dibuja completo, respetando su forma y su fondo transparente.
+// Diseño de la cabecera: 'lado' (logo a la izquierda + nombre y frase) o 'arriba' (logo grande centrado).
+let DISENO_LOGO = 'arriba'; // aprobado: logo grande centrado, debajo la frase
+function cajaLogo(logo, maxW, maxH) {
+  if (!logo) return { w: maxH, h: maxH };
+  const s = Math.min(maxW / logo.width, maxH / logo.height);
+  return { w: Math.round(logo.width * s), h: Math.round(logo.height * s) };
+}
 async function dibujarTarjeta(t) {
   await fuentesListas();
   const logo = await cargarLogo();
-  const cv = document.createElement('canvas'); cv.width = ANCHO; cv.height = ALTO;
-  const c = cv.getContext('2d');
   const NUM = '"Space Grotesk", system-ui, sans-serif', TXT = 'Inter, system-ui, sans-serif';
-  c.fillStyle = '#0b0f1a'; c.fillRect(0, 0, ANCHO, ALTO);
-  const P = 56;
-  // cabecera: logo con brillo celeste
-  const L = 152;
-  c.save(); c.shadowColor = 'rgba(111,214,255,0.55)'; c.shadowBlur = 36;
-  c.beginPath(); c.arc(P + L / 2, P + L / 2, L / 2, 0, Math.PI * 2); c.fillStyle = '#0b0f1a'; c.fill(); c.restore();
-  if (logo) {
-    c.save(); c.beginPath(); c.arc(P + L / 2, P + L / 2, L / 2, 0, Math.PI * 2); c.clip();
-    const s = Math.max(L / logo.width, L / logo.height), w = logo.width * s, h = logo.height * s;
-    c.drawImage(logo, P + (L - w) / 2, P + (L - h) / 2, w, h); c.restore();
+  const P = 56, xi = P + 48, xd = ANCHO - P - 48, anchoIn = xd - xi;
+  // 1) medir: la tarjeta crece o se encoge según lo que lleva (sin espacio blanco sobrante)
+  const arriba = DISENO_LOGO === 'arriba';
+  const cL = arriba ? cajaLogo(logo, 560, 330) : cajaLogo(logo, 270, 210);
+  const altoCab = arriba ? cL.h + 70 : cL.h;
+  const top = P + altoCab + 40;
+  const yFila1 = top + 48 + 52;
+  const yB = yFila1 + (t.arriba.nota ? 64 : 36) + 16, hB = 228;
+  const yF0 = yB + hB + 36, hF = 96;
+  const bot = yF0 + hF * t.filas.length + 32;
+  const yP = bot + 40 + 30;
+  const alto = yP + 30 + P;
+  const cv = document.createElement('canvas'); cv.width = ANCHO; cv.height = alto;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#0b0f1a'; c.fillRect(0, 0, ANCHO, alto);
+  c.textBaseline = 'alphabetic';
+  // 2) cabecera
+  const sombraLogo = () => { c.shadowColor = 'rgba(111,214,255,0.35)'; c.shadowBlur = 28; };
+  if (arriba) {
+    const x = (ANCHO - cL.w) / 2;
+    if (logo) { c.save(); sombraLogo(); c.drawImage(logo, x, P, cL.w, cL.h); c.restore(); }
+    c.textAlign = 'center'; c.fillStyle = '#6fd6ff';
+    const sub = t.frase || 'Casa de Cambios'; // el logo ya trae el nombre y el lema
+    ajustar(c, sub, '500 {t}px ' + TXT, 30, ANCHO - 2 * P); c.fillText(sub, ANCHO / 2, P + cL.h + 52);
+  } else {
+    if (logo) { c.save(); sombraLogo(); c.drawImage(logo, P, P, cL.w, cL.h); c.restore(); }
+    const xN = P + cL.w + 32, maxT = ANCHO - xN - P, yM = P + cL.h / 2;
+    c.textAlign = 'left';
+    c.fillStyle = '#ffffff'; ajustar(c, t.nombre, '700 {t}px ' + NUM, 48, maxT); c.fillText(t.nombre, xN, yM - 6);
+    c.fillStyle = '#6fd6ff'; ajustar(c, t.frase, '500 {t}px ' + TXT, 28, maxT); c.fillText(t.frase, xN, yM + 40);
   }
-  c.textBaseline = 'alphabetic'; c.textAlign = 'left';
-  const xN = P + L + 28;
-  c.fillStyle = '#ffffff'; ajustar(c, t.nombre, '700 {t}px ' + NUM, 44, ANCHO - xN - P); c.fillText(t.nombre, xN, P + 68);
-  c.fillStyle = '#6fd6ff'; ajustar(c, t.frase, '500 {t}px ' + TXT, 28, ANCHO - xN - P); c.fillText(t.frase, xN, P + 112);
-
-  // cuerpo blanco
-  const top = P + L + 40, pie = ALTO - P - 64, bot = pie - 40;
+  // 3) cuerpo blanco
   c.fillStyle = '#ffffff'; redondeado(c, P, top, ANCHO - 2 * P, bot - top, 44); c.fill();
-  const xi = P + 48, xd = ANCHO - P - 48, anchoIn = xd - xi;
-  // fila de arriba: etiqueta a la izquierda, monto a la derecha
-  let y = top + 48 + 52;
   c.font = '400 30px ' + TXT; c.fillStyle = '#4d5f6d'; c.textAlign = 'left';
-  c.fillText(t.arriba.etiqueta, xi, y);
-  if (t.arriba.nota) { c.font = '400 24px ' + TXT; c.fillText(t.arriba.nota, xi, y + 34); }
+  c.fillText(t.arriba.etiqueta, xi, yFila1);
+  if (t.arriba.nota) { c.font = '400 24px ' + TXT; c.fillText(t.arriba.nota, xi, yFila1 + 34); }
   c.textAlign = 'right';
   c.font = '500 32px ' + TXT; const wU = c.measureText(' ' + t.arriba.unidad).width;
-  c.fillStyle = '#4d5f6d'; c.fillText(' ' + t.arriba.unidad, xd, y);
-  c.fillStyle = '#13222e'; ajustar(c, t.arriba.valor, '700 {t}px ' + NUM, 52, anchoIn * 0.55); c.fillText(t.arriba.valor, xd - wU, y);
-  // recuadro celeste con el monto grande
-  const yB = y + (t.arriba.nota ? 64 : 36) + 16, hB = 228;
+  c.fillStyle = '#4d5f6d'; c.fillText(' ' + t.arriba.unidad, xd, yFila1);
+  c.fillStyle = '#13222e'; ajustar(c, t.arriba.valor, '700 {t}px ' + NUM, 52, anchoIn * 0.55); c.fillText(t.arriba.valor, xd - wU, yFila1);
   c.fillStyle = '#e8f7fd'; redondeado(c, xi, yB, anchoIn, hB, 32); c.fill();
   c.textAlign = 'left'; c.fillStyle = '#3d4b56'; c.font = '500 30px ' + TXT;
-  c.fillText(t.grande.etiqueta, xi + 40, yB + 36 + 28);
+  c.fillText(t.grande.etiqueta, xi + 40, yB + 64);
   const uniG = ' ' + t.grande.unidad;
   c.font = '700 52px ' + NUM; const wUG = c.measureText(uniG).width;
   const tG = ajustar(c, t.grande.valor, '700 {t}px ' + NUM, 96, anchoIn - 80 - wUG);
   c.fillStyle = '#0b0f1a'; c.fillText(t.grande.valor, xi + 40, yB + hB - 44);
   const wV = c.measureText(t.grande.valor).width;
   c.font = '700 ' + Math.round(tG * 0.54) + 'px ' + NUM; c.fillText(uniG, xi + 40 + wV, yB + hB - 44);
-  // filas
-  let yF = yB + hB + 36;
   t.filas.forEach((f, i) => {
-    const h = 96, base = yF + h / 2 + 12;
+    const yF = yF0 + hF * i, base = yF + hF / 2 + 12;
     c.textAlign = 'left'; c.font = '400 32px ' + TXT; c.fillStyle = '#4d5f6d'; c.fillText(f.etiqueta, xi, base);
     c.textAlign = 'right'; c.fillStyle = '#13222e';
     ajustar(c, f.valor, (f.fuerte ? '700' : '500') + ' {t}px ' + NUM, f.fuerte ? 44 : 38, anchoIn * 0.62);
     c.fillText(f.valor, xd, base);
-    if (i < t.filas.length - 1) { c.fillStyle = '#e3e8ec'; c.fillRect(xi, yF + h - 1, anchoIn, 2); }
-    yF += h;
+    if (i < t.filas.length - 1) { c.fillStyle = '#e3e8ec'; c.fillRect(xi, yF + hF - 1, anchoIn, 2); }
   });
-  // pie: fecha y etiqueta roja
-  const yP = pie + 32;
+  // 4) pie: fecha y etiqueta roja
   c.textAlign = 'left'; c.font = '400 30px ' + TXT; c.fillStyle = '#c9d3de'; c.fillText(t.fecha, P, yP + 10);
   c.font = '700 28px ' + TXT; const wE = c.measureText(t.etiquetaValida).width;
   const wP = wE + 56, hP = 60;
@@ -907,7 +918,7 @@ function llenarAjustes() {
   $('aBinance').checked = a.binanceAuto !== false;
   $('aWhatsapp').value = waModo();
   $('aNombre').value = n.nombre; $('aFrase').value = n.frase;
-  $('ajLogo').src = n.logo || 'logo.jpg';
+  $('ajLogo').src = n.logo || 'logo.png';
   $('btnLogoBase').classList.toggle('oculto', !n.logo);
   logoNuevo = undefined;
   entendiAjustes();
@@ -917,17 +928,22 @@ $('aLogo').addEventListener('change', async () => {
   const f = $('aLogo').files[0]; if (!f) return;
   try {
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(f); });
-    const lado = 256, cv = document.createElement('canvas'); cv.width = lado; cv.height = lado;
-    const c = cv.getContext('2d'), s = Math.max(lado / img.width, lado / img.height);
-    c.fillStyle = '#0b0f1a'; c.fillRect(0, 0, lado, lado);
-    c.drawImage(img, (lado - img.width * s) / 2, (lado - img.height * s) / 2, img.width * s, img.height * s);
-    let q = 0.85, data = cv.toDataURL('image/jpeg', q);
-    while (data.length > 44000 && q > 0.4) { q -= 0.1; data = cv.toDataURL('image/jpeg', q); }
+    // se conserva la forma y el fondo transparente del logo (sin recortarlo en círculo)
+    let data = '';
+    for (const max of [320, 260, 200, 160]) {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas'); cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      data = cv.toDataURL('image/webp', 0.85);
+      if (!/^data:image\/webp/.test(data)) data = cv.toDataURL('image/png');
+      if (data.length <= 44000) break;
+    }
+    if (data.length > 44000) throw new Error('muy pesado');
     logoNuevo = data; $('ajLogo').src = data;
   } catch (e) { toast('No pude leer esa imagen.'); }
 });
 $('aWhatsapp').addEventListener('change', () => { guardar('whatsapp', $('aWhatsapp').value); toast('Listo: en esta computadora se abrirá ' + ($('aWhatsapp').value === 'app' ? 'la app de escritorio.' : 'WhatsApp Web.')); });
-$('btnLogoBase').addEventListener('click', () => { logoNuevo = ''; $('ajLogo').src = 'logo.jpg'; $('btnLogoBase').classList.add('oculto'); });
+$('btnLogoBase').addEventListener('click', () => { logoNuevo = ''; $('ajLogo').src = 'logo.png'; $('btnLogoBase').classList.add('oculto'); });
 $('btnGuardarAjustes').addEventListener('click', () => conCarga($('btnGuardarAjustes'), async () => {
   const d = {
     margen: num($('aMargen').value) / 100, pagoMovil: num($('aPm').value) / 100, limpio: $('aLimpio').checked,
@@ -958,7 +974,7 @@ $('btnSalir').addEventListener('click', async () => { try { await api('salir'); 
 // ───────── arranque ─────────
 function pintarTodo() {
   const n = negocio();
-  ['pinLogo', 'calcLogo'].forEach(id => { $(id).src = n.logo || 'logo.jpg'; });
+  ['pinLogo', 'calcLogo'].forEach(id => { $(id).src = n.logo || 'logo.png'; });
   $('tPin').textContent = n.nombre; $('pinFrase').textContent = n.frase;
   if (!$('vCalc').classList.contains('oculto') || S.token) pintarCalc();
   if (!$('vTasas').classList.contains('oculto')) llenarTasas();

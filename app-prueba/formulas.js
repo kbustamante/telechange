@@ -258,7 +258,7 @@
     if (r.montoEn === 'dolares' && r.dolares != null) arriba.nota = '($' + formato(r.dolares, 2) + ' BCV)';
     return {
       nombre: negocio.nombre || 'Telechange',
-      frase: negocio.frase || 'Casa de Cambios · Tu envío rápido y seguro',
+      frase: negocio.frase || 'Casa de Cambios',
       arriba,
       grande,
       filas: [
