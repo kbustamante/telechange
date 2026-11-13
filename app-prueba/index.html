@@ -132,6 +132,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 .ventana{background:var(--sup);border-radius:18px;padding:16px;width:100%;max-width:440px;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
 .ventana img{width:100%;border-radius:12px;display:block}
 .cargando{opacity:.6;pointer-events:none}
+.btn.wa{border-color:#25d366;color:#5ee08f;font-weight:700}
 .entendi{font-size:13px;color:var(--tenue);margin-top:-2px}
 .entendi b{color:var(--suave);font-weight:700}
 .entendi.mal{color:#ffb3b6}
@@ -212,6 +213,10 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
       <button class="btn" id="btnVer">Ver tarjeta</button>
       <button class="btn" id="btnCopiar">Copiar texto</button>
     </div>
+    <button class="btn wa" id="btnWhatsapp">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.8c.3 2.6 2.4 4.8 5 5.4l1.2-1.2 1.8.9-.4 1.6c-3.9.3-8-3.6-7.8-7.6l1.6-.4.9 1.8z"/></svg>
+      Abrir WhatsApp
+    </button>
   </main>
 
   <!-- Tasas -->
@@ -351,7 +356,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 'use strict';
 const API_URL = 'https://script.google.com/macros/s/AKfycbzGle5R2vx6tSLhoY9_zIKXS9K1rL7OLsM-loDkMDanMvfhWTGgKTDVs3YSKdxT89oM/exec';
 const ENTORNO = 'PRUEBA';
-const PANTALLA = 2;
+const PANTALLA = 3;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
@@ -746,13 +751,43 @@ async function compartir() {
   descargar(l);
   toast('Este celular no deja compartir la imagen: la tarjeta se descargó. Búscala en tu galería o en Descargas.', 5000);
 }
-$('btnCompartir').addEventListener('click', compartir);
+// En la computadora casi nunca hay menú de compartir con WhatsApp: se copia la tarjeta como imagen
+// y se pega con Ctrl+V en el chat (WhatsApp Web o la app de escritorio).
+const ES_COMPU = !(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+function puedeCopiarImagen() { return !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem); }
+async function copiarImagen() {
+  if (!calculo().ok) return false;
+  if (!puedeCopiarImagen()) return false;
+  try {
+    // la promesa va dentro del ClipboardItem para no perder el "toque" del usuario mientras se dibuja
+    const blob = generar().then(l => { if (!l) throw new Error('sin tarjeta'); return l.archivo; });
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    return true;
+  } catch (e) { return false; }
+}
+async function compartirCompu() {
+  if (await copiarImagen()) { toast('Tarjeta copiada. En el chat de WhatsApp presiona Ctrl+V para pegarla.', 6000); return; }
+  const l = await generar(); if (!l) return;
+  descargar(l);
+  toast('La tarjeta se descargó. En WhatsApp toca el clip 📎 y adjúntala desde Descargas.', 6000);
+}
+$('btnCompartir').addEventListener('click', () => ES_COMPU ? compartirCompu() : compartir());
+// Abre WhatsApp Web en una sola pestaña (si ya está abierta, la reutiliza).
+$('btnWhatsapp').addEventListener('click', () => { window.open('https://web.whatsapp.com/', 'telechange_whatsapp'); });
+function textoBotonCompartir() {
+  const b = $('btnCompartir'); const svg = b.querySelector('svg');
+  b.textContent = ''; if (svg) b.append(svg);
+  b.append(ES_COMPU ? ' Copiar tarjeta para WhatsApp' : ' Compartir tarjeta');
+}
+textoBotonCompartir();
 $('btnVer').addEventListener('click', async () => {
   const l = await generar(); if (!l) return;
   const cuerpo = $('ventCuerpo'); cuerpo.textContent = '';
-  const bC = el('button', { class: 'btn prin' }, 'Compartir'), bD = el('button', { class: 'btn' }, 'Descargar');
-  bC.addEventListener('click', compartir); bD.addEventListener('click', () => descargar(l));
-  cuerpo.append(el('img', { src: l.url, alt: 'Tarjeta para el cliente' }), el('div', { class: 'dos' }, bC, bD));
+  const bC = el('button', { class: 'btn prin' }, ES_COMPU ? 'Copiar imagen' : 'Compartir'), bD = el('button', { class: 'btn' }, 'Descargar');
+  bC.addEventListener('click', () => ES_COMPU ? compartirCompu() : compartir()); bD.addEventListener('click', () => descargar(l));
+  const bW = el('button', { class: 'btn wa' }, 'Abrir WhatsApp');
+  bW.addEventListener('click', () => window.open('https://web.whatsapp.com/', 'telechange_whatsapp'));
+  cuerpo.append(el('img', { src: l.url, alt: 'Tarjeta para el cliente' }), el('div', { class: 'dos' }, bC, bD), bW);
   $('velo').classList.remove('oculto'); $('btnCerrar').focus();
 });
 $('btnCerrar').addEventListener('click', () => $('velo').classList.add('oculto'));
