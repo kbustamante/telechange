@@ -1,5 +1,5 @@
 // Abre la app aunque no haya señal; las tasas siempre se piden en vivo a Apps Script.
-const CACHE = 'telechange-prueba-9fbc42a286';
+const CACHE = 'telechange-prueba-883ad076be';
 const BASE = ['./', 'index.html', 'formulas.js', 'logo.png', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });

@@ -206,12 +206,9 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
     </section>
     <button class="btn prin" id="btnCompartir">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12M7 8l5-5 5 5"/></svg>
-      Compartir tarjeta
+      Enviar por WhatsApp
     </button>
-    <div class="dos">
-      <button class="btn" id="btnVer">Ver tarjeta</button>
-      <button class="btn" id="btnCopiar">Copiar texto</button>
-    </div>
+    <button class="btn" id="btnCopiar">Copiar texto</button>
   </main>
 
   <!-- Tasas -->
@@ -305,11 +302,6 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
         <select id="aRedVe" class="num-in"><option value="abajo">Hacia abajo</option><option value="arriba">Hacia arriba</option><option value="normal">Normal</option></select></div>
     </section>
     <section class="lista">
-      <h2>ESTA COMPUTADORA</h2>
-      <div class="item"><span class="d"><label for="aWhatsapp">WhatsApp que uso aquí</label><small>Lo que abre “Enviar por WhatsApp”</small></span>
-        <select id="aWhatsapp" class="num-in"><option value="web">WhatsApp Web</option><option value="app">App de escritorio</option></select></div>
-    </section>
-    <section class="lista">
       <h2>TASAS AUTOMÁTICAS</h2>
       <div class="item"><span class="d"><label for="aBinance">Leer Binance solo</label><small>Si falla seguido, apágalo y escribe los precios a mano</small></span><input type="checkbox" role="switch" class="sw" id="aBinance"></div>
     </section>
@@ -356,7 +348,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 'use strict';
 const API_URL = 'https://script.google.com/macros/s/AKfycbzGle5R2vx6tSLhoY9_zIKXS9K1rL7OLsM-loDkMDanMvfhWTGgKTDVs3YSKdxT89oM/exec';
 const ENTORNO = 'PRUEBA';
-const PANTALLA = 5;
+const PANTALLA = 6;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
@@ -585,7 +577,7 @@ function pintarCalc() {
   if (F.avisoGanancia(r)) $('avisosCalc').querySelectorAll('.aviso.rojo').forEach(x => x.remove()); // un solo aviso rojo: este ya cubre el de margen
   if (F.avisoGanancia(r)) $('avisosCalc').prepend(el('div', { class: 'aviso rojo', role: 'alert' }, el('b', {}, 'Revisa las tasas'), el('span', {}, 'La ganancia sale fuera de lo normal (más de ' + F.formato(F.GANANCIA_MAX * 100, 0) + ' % o negativa). Abre el ojo para ver el detalle y revisa los precios en Tasas.')));
   box.textContent = '';
-  const btns = [$('btnCompartir'), $('btnVer'), $('btnCopiar')];
+  const btns = [$('btnCompartir'), $('btnCopiar')];
   if (!r.ok) {
     box.append(el('div', { class: 'vacio' }, r.error));
     btns.forEach(b => b.disabled = true);
@@ -750,65 +742,34 @@ async function dibujarYGuardar(r, clave) {
 function descargar(l) {
   const a = el('a', { href: l.url, download: l.archivo.name }); document.body.append(a); a.click(); a.remove();
 }
-async function compartir() {
-  let l = (lista.clave === claveTarjeta() && lista.archivo) ? lista : null;
-  if (!l) l = await generar();
+// Un solo botón, "Enviar por WhatsApp":
+//  1) Abre el menú Compartir del aparato con la tarjeta ya adjunta. En el celular sale WhatsApp; en la computadora
+//     (Chrome o Edge en Windows) sale la app de WhatsApp de escritorio: se elige el contacto y la tarjeta ya viene.
+//  2) Si el navegador no tiene ese menú: copia la tarjeta, abre WhatsApp Web y se pega con Ctrl+V.
+//  3) Si tampoco deja copiar imágenes: la descarga.
+function puedeCopiarImagen() { return !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem); }
+async function enviar() {
+  if (!calculo().ok) return;
+  const listo = lista.clave === claveTarjeta() && lista.archivo;
+  const l = listo ? lista : await generar();
   if (!l) return;
   const datos = { files: [l.archivo] };
   if (navigator.canShare && navigator.canShare(datos)) {
     try { await navigator.share(datos); return; }
-    catch (e) { if (e.name === 'AbortError') return; }
+    catch (e) { if (e.name === 'AbortError') return; } // Willi cerró el menú: no se hace nada
+  }
+  if (puedeCopiarImagen()) {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': l.archivo })]);
+      window.open('https://web.whatsapp.com/', 'telechange_whatsapp');
+      toast('Tarjeta copiada. En WhatsApp abre el chat del cliente y presiona Ctrl+V.', 8000);
+      return;
+    } catch (e) {}
   }
   descargar(l);
-  toast('Este celular no deja compartir la imagen: la tarjeta se descargó. Búscala en tu galería o en Descargas.', 5000);
+  toast('La tarjeta se descargó. En el chat de WhatsApp adjúntala con el clip 📎.', 8000);
 }
-// En la computadora: un solo botón "Enviar por WhatsApp" copia la tarjeta como imagen y abre WhatsApp.
-// El navegador no puede meter la imagen en un chat por su cuenta: Willi elige el chat y pega con Ctrl+V.
-const ES_COMPU = !(window.matchMedia && matchMedia('(pointer: coarse)').matches);
-function puedeCopiarImagen() { return !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem); }
-async function copiarImagen() {
-  if (!calculo().ok || !puedeCopiarImagen()) return false;
-  try {
-    // si la tarjeta ya está lista se usa tal cual; si no, la promesa va dentro del ClipboardItem para no perder el clic
-    const listo = lista.clave === claveTarjeta() && lista.archivo;
-    const blob = listo ? lista.archivo : generar().then(l => { if (!l) throw new Error('sin tarjeta'); return l.archivo; });
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    return true;
-  } catch (e) { return false; }
-}
-// Qué WhatsApp se abre en esta computadora (se guarda solo en este navegador): 'web' o 'app' (WhatsApp de escritorio)
-function waModo() { return leer('whatsapp', 'web'); }
-function abrirWhatsapp() {
-  if (waModo() === 'app') { const a = el('a', { href: 'whatsapp://' }); document.body.append(a); a.click(); a.remove(); }
-  else window.open('https://web.whatsapp.com/', 'telechange_whatsapp'); // reutiliza la misma pestaña
-}
-async function enviarCompu() {
-  if (await copiarImagen()) {
-    abrirWhatsapp();
-    toast('Tarjeta copiada. En WhatsApp abre el chat del cliente y presiona Ctrl+V. Luego Enter para enviar.', 8000);
-    return;
-  }
-  const l = await generar(); if (!l) return;
-  descargar(l);
-  abrirWhatsapp();
-  toast('Este navegador no deja copiar imágenes: la tarjeta se descargó. En el chat toca el clip 📎 y adjúntala desde Descargas.', 8000);
-}
-function enviar() { return ES_COMPU ? enviarCompu() : compartir(); }
 $('btnCompartir').addEventListener('click', enviar);
-function textoBotonCompartir() {
-  const b = $('btnCompartir'); const svg = b.querySelector('svg');
-  b.textContent = ''; if (svg) b.append(svg);
-  b.append(ES_COMPU ? ' Enviar por WhatsApp' : ' Compartir tarjeta');
-}
-textoBotonCompartir();
-$('btnVer').addEventListener('click', async () => {
-  const l = await generar(); if (!l) return;
-  const cuerpo = $('ventCuerpo'); cuerpo.textContent = '';
-  const bC = el('button', { class: 'btn prin' }, ES_COMPU ? 'Enviar por WhatsApp' : 'Compartir'), bD = el('button', { class: 'btn' }, 'Descargar');
-  bC.addEventListener('click', () => { $('velo').classList.add('oculto'); enviar(); }); bD.addEventListener('click', () => descargar(l));
-  cuerpo.append(el('img', { src: l.url, alt: 'Tarjeta para el cliente' }), el('div', { class: 'dos' }, bC, bD));
-  $('velo').classList.remove('oculto'); $('btnCerrar').focus();
-});
 $('btnCerrar').addEventListener('click', () => $('velo').classList.add('oculto'));
 $('velo').addEventListener('click', e => { if (e.target === $('velo')) $('velo').classList.add('oculto'); });
 
@@ -916,7 +877,6 @@ function llenarAjustes() {
   $('aDesc').value = F.formato(a.descuentoVeCo, 2);
   $('aRedCo').value = a.redondeoCoVe; $('aRedVe').value = a.redondeoVeCo;
   $('aBinance').checked = a.binanceAuto !== false;
-  $('aWhatsapp').value = waModo();
   $('aNombre').value = n.nombre; $('aFrase').value = n.frase;
   $('ajLogo').src = n.logo || 'logo.png';
   $('btnLogoBase').classList.toggle('oculto', !n.logo);
@@ -942,7 +902,6 @@ $('aLogo').addEventListener('change', async () => {
     logoNuevo = data; $('ajLogo').src = data;
   } catch (e) { toast('No pude leer esa imagen.'); }
 });
-$('aWhatsapp').addEventListener('change', () => { guardar('whatsapp', $('aWhatsapp').value); toast('Listo: en esta computadora se abrirá ' + ($('aWhatsapp').value === 'app' ? 'la app de escritorio.' : 'WhatsApp Web.')); });
 $('btnLogoBase').addEventListener('click', () => { logoNuevo = ''; $('ajLogo').src = 'logo.png'; $('btnLogoBase').classList.add('oculto'); });
 $('btnGuardarAjustes').addEventListener('click', () => conCarga($('btnGuardarAjustes'), async () => {
   const d = {
