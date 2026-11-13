@@ -111,7 +111,7 @@ h2{margin:0;font-size:15px}
 select.num-in{width:auto;text-align:left;font-family:var(--txt);font-size:15px}
 input[type=checkbox].sw{width:52px;height:30px;accent-color:var(--rojo);flex:none}
 nav.abajo{position:fixed;left:0;right:0;bottom:0;background:#111726;border-top:1px solid var(--linea);padding:8px 8px calc(10px + env(safe-area-inset-bottom))}
-nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
 nav.abajo button{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--gris);background:none;border:none;font-size:12px;font-weight:500}
 nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 /* PIN */
@@ -132,6 +132,24 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 .ventana{background:var(--sup);border-radius:18px;padding:16px;width:100%;max-width:440px;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
 .ventana img{width:100%;border-radius:12px;display:block}
 .cargando{opacity:.6;pointer-events:none}
+.txt-in.claro{background:var(--sup);font-size:16px}
+.op{background:var(--sup);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.op .l1{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.op .cli{font-weight:700;font-size:15px}
+.op .cli.sin{color:var(--gris);font-weight:500}
+.op .det{font-size:14px;color:var(--suave)}
+.op .det b{font-family:var(--num)}
+.op .acc{display:flex;gap:8px;flex-wrap:wrap}
+.op .acc .btn{min-height:44px;flex:1;font-size:14px}
+.estado{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.estado.Cotizada{background:#3a2d0a;color:#ffd28a}
+.estado.Procesada{background:#0d3324;color:#7ee2b0}
+.estado.Cancelada{background:#2a2f3c;color:#a9b4c4}
+.cifras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cifra{background:var(--sup2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.cifra .v{font-family:var(--num);font-size:19px;font-weight:700;word-break:break-word}
+.fila-lista{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--linea)}
+.fila-lista:last-child{border-bottom:none}
 .entendi{font-size:13px;color:var(--tenue);margin-top:-2px}
 .entendi b{color:var(--suave);font-weight:700}
 .entendi.mal{color:#ffb3b6}
@@ -195,6 +213,11 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
         <button data-v="usd_binance">$ Binance</button>
       </div>
     </div>
+    <label class="grupo" for="cliente">
+      <span class="etq">Cliente (nombre o apodo, opcional) · se guarda en el Registro al enviar</span>
+      <input id="cliente" class="txt-in claro" list="listaClientes" maxlength="40" autocomplete="off" placeholder="Ej.: Carlos, Sra. Ana">
+    </label>
+    <datalist id="listaClientes"></datalist>
     <section class="resultado" id="resultado" aria-live="polite"></section>
     <section class="privado" aria-label="Ganancia, solo para ti">
       <div class="tit">
@@ -209,6 +232,22 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
       Enviar por WhatsApp
     </button>
     <button class="btn" id="btnCopiar">Copiar texto</button>
+  </main>
+
+  <!-- Registro -->
+  <main id="vRegistro" class="oculto" aria-labelledby="tReg">
+    <header class="entre">
+      <h1 id="tReg">Registro</h1>
+      <button class="ojo" id="btnOjoReg" aria-label="Mostrar ganancia" aria-pressed="false"></button>
+    </header>
+    <div class="seg fondo" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group" aria-label="Periodo" id="segPeriodo">
+      <button data-v="hoy">Hoy</button>
+      <button data-v="mes">Este mes</button>
+    </div>
+    <section class="caja" id="regResumen" aria-live="polite"></section>
+    <div id="regPendientes"></div>
+    <section style="display:flex;flex-direction:column;gap:10px" id="regLista" aria-label="Operaciones"></section>
+    <section class="caja oculto" id="regClientes" aria-label="Mejores clientes"></section>
   </main>
 
   <!-- Tasas -->
@@ -328,6 +367,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
   <nav class="abajo oculto" id="nav" aria-label="Pantallas">
     <div class="in">
       <button data-v="vCalc"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Calcular</button>
+      <button data-v="vRegistro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v16H5V7z"/><path d="M8 4v3H5M9 11h7M9 15h7"/></svg>Registro</button>
       <button data-v="vTasas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Tasas</button>
       <button data-v="vAjustes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Ajustes</button>
     </div>
@@ -348,7 +388,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 'use strict';
 const API_URL = 'https://script.google.com/macros/s/AKfycbzGle5R2vx6tSLhoY9_zIKXS9K1rL7OLsM-loDkMDanMvfhWTGgKTDVs3YSKdxT89oM/exec';
 const ENTORNO = 'PRUEBA';
-const PANTALLA = 6;
+const PANTALLA = 7;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
@@ -403,7 +443,7 @@ function recibir(d) {
   pintarTodo();
 }
 async function refrescar() {
-  try { recibir(await api('datos')); }
+  try { recibir(await api('datos')); vaciarCola(); }
   catch (e) { if (S.token) toast(e.sinRed ? 'Sin conexión: uso las últimas tasas guardadas.' : e.message); }
 }
 
@@ -421,13 +461,14 @@ function calculo() {
 }
 
 // ───────── navegación ─────────
-const VISTAS = ['vPin', 'vCalc', 'vTasas', 'vAjustes'];
+const VISTAS = ['vPin', 'vCalc', 'vRegistro', 'vTasas', 'vAjustes'];
 function ir(v) {
   VISTAS.forEach(x => $(x).classList.toggle('oculto', x !== v));
   $('nav').classList.toggle('oculto', v === 'vPin');
   document.querySelectorAll('nav.abajo button').forEach(b => { if (b.dataset.v === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   if (v === 'vTasas') llenarTasas();
   if (v === 'vAjustes') llenarAjustes();
+  if (v === 'vRegistro') abrirRegistro();
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('nav.abajo button').forEach(b => b.addEventListener('click', () => ir(b.dataset.v)));
@@ -750,6 +791,8 @@ function descargar(l) {
 function puedeCopiarImagen() { return !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem); }
 async function enviar() {
   if (!calculo().ok) return;
+  if (!revisarClienteCampo()) return;
+  registrarEnvio(); // queda "Cotizada" en el Registro (sin esperar: no frena el menú de compartir)
   const listo = lista.clave === claveTarjeta() && lista.archivo;
   const l = listo ? lista : await generar();
   if (!l) return;
@@ -775,6 +818,8 @@ $('velo').addEventListener('click', e => { if (e.target === $('velo')) $('velo')
 
 $('btnCopiar').addEventListener('click', async () => {
   const r = calculo(); if (!r.ok) return;
+  if (!revisarClienteCampo()) return;
+  registrarEnvio();
   const texto = F.mensajeTexto(r, negocio(), hoy());
   try { await navigator.clipboard.writeText(texto); }
   catch (e) {
@@ -783,6 +828,138 @@ $('btnCopiar').addEventListener('click', async () => {
   }
   toast('Texto copiado. Pégalo en WhatsApp.');
 });
+
+// ───────── registro de operaciones (V3) ─────────
+// Al enviar la tarjeta (o copiar el texto) la operación queda "Cotizada". Willi la marca "Procesada" o "Cancelada" en Registro.
+// Del cliente solo el nombre o apodo: nada de cédulas, cuentas ni teléfonos.
+const nuevoId = () => 'op_' + Array.from(crypto.getRandomValues(new Uint8Array(9)), b => 'abcdefghijkmnpqrstuvwxyz23456789'[b % 32]).join('');
+let ultimoEnvio = { clave: null, id: null, cliente: '' };
+function revisarClienteCampo() {
+  const r = F.revisarCliente($('cliente').value);
+  if (!r.ok) { toast(r.error, 5000); $('cliente').focus(); return false; }
+  return true;
+}
+function payloadOperacion(id) {
+  const r = calculo(), eq = F.tarjeta(r, negocio(), hoy()).filas[2].valor;
+  return { id, cliente: F.revisarCliente($('cliente').value).valor, nota: '', direccion: r.direccion, montoEn: r.montoEn,
+    pesos: r.pesos, bolivares: r.bolivares, tasa: r.tasa, tB: r.tB, referencia: S.ui.ref, equivalencia: eq,
+    ganancia: r.ganancia, gananciaReal: r.gananciaReal };
+}
+function registrarEnvio() {
+  const clave = claveTarjeta(), cliente = F.revisarCliente($('cliente').value).valor;
+  if (ultimoEnvio.clave === clave) {
+    // misma tarjeta enviada otra vez: no se duplica; si cambió el nombre del cliente, se actualiza
+    if (cliente !== ultimoEnvio.cliente) { ultimoEnvio.cliente = cliente; api('cambiarEstado', { id: ultimoEnvio.id, cliente }).catch(() => {}); }
+    return;
+  }
+  const op = payloadOperacion(nuevoId());
+  ultimoEnvio = { clave, id: op.id, cliente };
+  api('registrarOperacion', op).then(d => anotarCliente(cliente)).catch(e => {
+    if (e.sinRed) { const c = leer('cola', []); c.push(op); guardar('cola', c); toast('Sin conexión: la operación se guardará en el Registro cuando vuelva la señal.', 5000); }
+    else toast('No se pudo guardar en el Registro: ' + e.message, 6000);
+  });
+}
+async function vaciarCola() {
+  const c = leer('cola', []); if (!c.length) return;
+  const quedan = [];
+  for (const op of c) { try { await api('registrarOperacion', op); } catch (e) { if (e.sinRed) quedan.push(op); } }
+  guardar('cola', quedan);
+  if (!quedan.length) toast('Las operaciones pendientes ya quedaron en el Registro.');
+}
+function anotarCliente(n) {
+  if (!n || !S.datos) return;
+  const l = S.datos.clientes || (S.datos.clientes = []);
+  if (l.indexOf(n) < 0) { l.unshift(n); pintarClientes(); }
+}
+function pintarClientes() {
+  const dl = $('listaClientes'); dl.textContent = '';
+  ((S.datos && S.datos.clientes) || []).forEach(c => dl.append(el('option', { value: c })));
+}
+$('cliente').addEventListener('input', () => { const r = F.revisarCliente($('cliente').value); $('cliente').style.borderColor = r.ok ? '' : '#ff8a8f'; });
+
+let REG = { periodo: leer('periodo', 'hoy'), datos: null };
+function rangoPeriodo() { const h = hoy(); return REG.periodo === 'mes' ? { desde: h.slice(0, 8) + '01', hasta: h } : { desde: h, hasta: h }; }
+async function abrirRegistro() {
+  marcar('segPeriodo', REG.periodo);
+  pintarOjoReg();
+  $('regResumen').textContent = 'Cargando…';
+  await vaciarCola();
+  try { REG.datos = await api('listarOperaciones', rangoPeriodo()); if (S.datos) S.datos.clientes = REG.datos.clientes; pintarClientes(); pintarRegistro(); }
+  catch (e) { $('regResumen').textContent = e.sinRed ? 'Sin conexión: el Registro necesita señal.' : e.message; }
+}
+document.querySelectorAll('#segPeriodo button').forEach(b => b.addEventListener('click', () => { REG.periodo = b.dataset.v; guardar('periodo', REG.periodo); abrirRegistro(); }));
+function pintarOjoReg() {
+  const b = $('btnOjoReg'); b.setAttribute('aria-pressed', String(S.verGanancia)); b.setAttribute('aria-label', S.verGanancia ? 'Ocultar ganancia' : 'Mostrar ganancia');
+  b.innerHTML = $('btnOjo').innerHTML;
+}
+$('btnOjoReg').addEventListener('click', () => { S.verGanancia = !S.verGanancia; pintarOjo(); pintarOjoReg(); if (REG.datos) pintarRegistro(); });
+const flecha = d => d === 'VE-CO' ? 'Venezuela → Colombia' : 'Colombia → Venezuela';
+function cifra(etq, val) { return el('div', { class: 'cifra' }, el('span', { class: 'etq' }, etq), el('span', { class: 'v' }, val)); }
+function pintarRegistro() {
+  const d = REG.datos, r = d.resumen, box = $('regResumen');
+  box.textContent = '';
+  box.append(
+    el('div', { class: 'entre' }, el('h2', {}, REG.periodo === 'mes' ? 'Este mes' : 'Hoy, ' + F.fechaLarga(hoy())), el('span', { class: 'nota' }, 'Solo procesadas')),
+    el('div', { class: 'cifras' },
+      cifra('Operaciones', String(r.procesadas)),
+      cifra('Total pesos', F.pesos(r.pesos)),
+      cifra('Total bolívares', F.bolivares(r.bolivares)),
+      cifra('Ganancia real', S.verGanancia ? F.pesos(r.gananciaReal) + ' pesos' : '•••')),
+    el('div', {},
+      el('div', { class: 'fila-lista' }, el('span', {}, 'Colombia → Venezuela'), el('span', {}, r.porDireccion['CO-VE'].operaciones + ' · ' + F.pesos(r.porDireccion['CO-VE'].pesos) + ' pesos')),
+      el('div', { class: 'fila-lista' }, el('span', {}, 'Venezuela → Colombia'), el('span', {}, r.porDireccion['VE-CO'].operaciones + ' · ' + F.bolivares(r.porDireccion['VE-CO'].bolivares) + ' bolívares')),
+      ...Object.keys(r.porPago).map(k => el('div', { class: 'fila-lista' }, el('span', {}, 'Entró por ' + k), el('span', {}, String(r.porPago[k]))))),
+  );
+  $('regPendientes').textContent = '';
+  if (r.cotizadas) $('regPendientes').append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, r.cotizadas + (r.cotizadas === 1 ? ' cotizada sin cerrar' : ' cotizadas sin cerrar')), el('span', {}, 'Márcalas como procesadas o canceladas cuando el cliente confirme.')));
+  const lista = $('regLista'); lista.textContent = '';
+  if (!d.operaciones.length) lista.append(el('div', { class: 'aviso gris' }, el('span', {}, REG.periodo === 'mes' ? 'Todavía no hay operaciones este mes.' : 'Todavía no hay operaciones hoy. Se guardan solas al enviar la tarjeta.')));
+  d.operaciones.forEach(o => lista.append(tarjetaOp(o)));
+  const cl = $('regClientes'); cl.textContent = '';
+  cl.classList.toggle('oculto', !r.clientes.length);
+  if (r.clientes.length) cl.append(el('h2', {}, 'Mejores clientes'), ...r.clientes.slice(0, 8).map(c =>
+    el('div', { class: 'fila-lista' }, el('span', {}, c.cliente), el('span', {}, c.operaciones + (c.operaciones === 1 ? ' envío · ' : ' envíos · ') + F.pesos(c.pesos) + ' pesos'))));
+}
+function tarjetaOp(o) {
+  const cuando = REG.periodo === 'mes' ? F.fechaLarga(o.fecha).split(', ')[1] + ' ' + o.hora : o.hora;
+  const acc = el('div', { class: 'acc' });
+  if (o.estado === 'Cotizada') {
+    const bP = el('button', { class: 'btn cel' }, 'Procesada'), bC = el('button', { class: 'btn' }, 'Cancelada');
+    bP.addEventListener('click', () => editarOp(o, 'Procesada'));
+    bC.addEventListener('click', () => conCarga(bC, async () => { await api('cambiarEstado', { id: o.id, estado: 'Cancelada' }); toast('Operación cancelada.'); abrirRegistro(); }));
+    acc.append(bP, bC);
+  }
+  const bE = el('button', { class: 'btn' }, 'Editar'); bE.addEventListener('click', () => editarOp(o)); acc.append(bE);
+  return el('article', { class: 'op' },
+    el('div', { class: 'l1' }, el('span', { class: 'cli' + (o.cliente ? '' : ' sin') }, o.cliente || 'Sin nombre'), el('span', { class: 'estado ' + o.estado }, o.estado)),
+    el('div', { class: 'det' }, cuando + ' · ' + flecha(o.direccion)),
+    el('div', { class: 'det' }, el('b', {}, F.pesos(o.pesos)), ' pesos · ', el('b', {}, F.bolivares(o.bolivares)), ' bolívares · tasa ', el('b', {}, F.tasa(o.tasa))),
+    (o.pago || o.nota || S.verGanancia) ? el('div', { class: 'det' }, [o.pago ? 'Entró por ' + o.pago : '', o.nota, S.verGanancia ? 'Ganancia real ' + F.pesos(o.gananciaReal) + ' pesos' : ''].filter(Boolean).join(' · ')) : null,
+    acc);
+}
+function editarOp(o, estadoNuevo) {
+  const cuerpo = $('ventCuerpo'); cuerpo.textContent = '';
+  $('ventTit').textContent = estadoNuevo === 'Procesada' ? 'Marcar como procesada' : 'Editar operación';
+  const iC = el('input', { class: 'txt-in', id: 'opCliente', list: 'listaClientes', maxlength: '40', autocomplete: 'off' }); iC.value = o.cliente;
+  const sP = el('select', { class: 'txt-in', id: 'opPago' }, el('option', { value: '' }, '— Sin indicar —'), ...F.FORMAS_PAGO.map(f => el('option', { value: f }, f))); sP.value = o.pago || '';
+  const sE = el('select', { class: 'txt-in', id: 'opEstado' }, ...F.ESTADOS.map(f => el('option', { value: f }, f))); sE.value = estadoNuevo || o.estado;
+  const iN = el('input', { class: 'txt-in', id: 'opNota', maxlength: '80', autocomplete: 'off', placeholder: 'Ej.: la de la mamá (sin números de cuenta)' }); iN.value = o.nota;
+  const b = el('button', { class: 'btn prin' }, 'Guardar');
+  b.addEventListener('click', () => conCarga(b, async () => {
+    const c = F.revisarCliente(iC.value), n = F.revisarNota(iN.value);
+    if (!c.ok) throw new Error(c.error); if (!n.ok) throw new Error(n.error);
+    await api('cambiarEstado', { id: o.id, estado: sE.value, pago: sP.value, cliente: c.valor, nota: n.valor });
+    $('velo').classList.add('oculto'); anotarCliente(c.valor); toast('Operación guardada.'); abrirRegistro();
+  }));
+  cuerpo.append(
+    el('div', { class: 'nota' }, flecha(o.direccion) + ' · ' + F.pesos(o.pesos) + ' pesos · ' + F.bolivares(o.bolivares) + ' bolívares · tasa ' + F.tasa(o.tasa)),
+    el('label', { class: 'grupo', for: 'opCliente' }, el('span', { class: 'etq' }, 'Cliente (nombre o apodo)'), iC),
+    el('label', { class: 'grupo', for: 'opPago' }, el('span', { class: 'etq' }, 'Por dónde entró la plata'), sP),
+    el('label', { class: 'grupo', for: 'opEstado' }, el('span', { class: 'etq' }, 'Estado'), sE),
+    el('label', { class: 'grupo', for: 'opNota' }, el('span', { class: 'etq' }, 'Nota corta (opcional)'), iN),
+    b);
+  $('velo').classList.remove('oculto'); (estadoNuevo ? sP : iC).focus();
+}
 
 // ───────── tasas ─────────
 function fuenteChip(spanId, d) {
@@ -937,6 +1114,7 @@ function pintarTodo() {
   $('tPin').textContent = n.nombre; $('pinFrase').textContent = n.frase;
   if (!$('vCalc').classList.contains('oculto') || S.token) pintarCalc();
   if (!$('vTasas').classList.contains('oculto')) llenarTasas();
+  pintarClientes();
 }
 function iniciar() {
   if (ENTORNO !== 'REAL') { $('barraPrueba').classList.remove('oculto'); $('chipEntorno').textContent = ENTORNO; $('chipEntorno').classList.add('prueba'); }

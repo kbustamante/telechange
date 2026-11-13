@@ -320,11 +320,59 @@
     return null;
   }
 
+  // ───────── Registro de operaciones (sin datos delicados) ─────────
+  // Del cliente solo se guarda un nombre o apodo. Ni cédulas, ni cuentas, ni teléfonos:
+  // por eso el nombre y la nota no aceptan números largos.
+  const ESTADOS = ['Cotizada', 'Procesada', 'Cancelada'];
+  // Por dónde le entró la plata a Willi (sirve para cuadrar la caja). Es solo el medio, nunca el número de cuenta.
+  const FORMAS_PAGO = ['Nequi', 'Bancolombia', 'Daviplata', 'Efectivo', 'Pago móvil', 'Transferencia', 'Binance', 'Otro'];
+  function tieneNumeroLargo(txt) { return /\d{5,}/.test(String(txt || '').replace(/[\s.\-_/]/g, '')); }
+  /** Devuelve { ok, valor } o { ok:false, error }. */
+  function revisarCliente(txt) {
+    const v = String(txt == null ? '' : txt).replace(/\s+/g, ' ').trim();
+    if (v.length > 40) return { ok: false, error: 'El nombre del cliente debe tener máximo 40 letras' };
+    if (tieneNumeroLargo(v)) return { ok: false, error: 'El nombre no puede llevar cédulas, cuentas ni teléfonos' };
+    return { ok: true, valor: v };
+  }
+  function revisarNota(txt) {
+    const v = String(txt == null ? '' : txt).replace(/\s+/g, ' ').trim();
+    if (v.length > 80) return { ok: false, error: 'La nota debe tener máximo 80 letras' };
+    if (tieneNumeroLargo(v)) return { ok: false, error: 'La nota no puede llevar números de cuenta, cédula ni teléfono' };
+    return { ok: true, valor: v };
+  }
+  /**
+   * Resumen de un grupo de operaciones: cuántas hay por estado y los totales de las PROCESADAS
+   * (las cotizadas y canceladas no cuentan como plata movida). Clientes ordenados por cuánto mueven.
+   */
+  function resumenOperaciones(ops) {
+    const r = { cotizadas: 0, procesadas: 0, canceladas: 0, pesos: 0, bolivares: 0, ganancia: 0, gananciaReal: 0, clientes: [],
+      porDireccion: { 'CO-VE': { operaciones: 0, pesos: 0, bolivares: 0 }, 'VE-CO': { operaciones: 0, pesos: 0, bolivares: 0 } }, porPago: {} };
+    const porCliente = {};
+    (ops || []).forEach(o => {
+      if (o.estado === 'Procesada') {
+        r.procesadas++; r.pesos += Number(o.pesos) || 0; r.bolivares += Number(o.bolivares) || 0;
+        r.ganancia += Number(o.ganancia) || 0; r.gananciaReal += Number(o.gananciaReal) || 0;
+        const c = o.cliente || 'Sin nombre';
+        const x = porCliente[c] || (porCliente[c] = { cliente: c, operaciones: 0, pesos: 0, gananciaReal: 0 });
+        x.operaciones++; x.pesos += Number(o.pesos) || 0; x.gananciaReal += Number(o.gananciaReal) || 0;
+        const d = o.direccion === 'VE-CO' ? 'VE-CO' : 'CO-VE';
+        r.porDireccion[d].operaciones++; r.porDireccion[d].pesos += Number(o.pesos) || 0; r.porDireccion[d].bolivares += Number(o.bolivares) || 0;
+        const fp = o.pago || 'Sin indicar';
+        r.porPago[fp] = (r.porPago[fp] || 0) + 1;
+      } else if (o.estado === 'Cancelada') r.canceladas++;
+      else r.cotizadas++;
+    });
+    r.bolivares = r2(r.bolivares);
+    r.clientes = Object.keys(porCliente).map(k => porCliente[k]).sort((a, b) => b.pesos - a.pesos || b.operaciones - a.operaciones);
+    return r;
+  }
+
   const API = {
     redondear, leerNumero, formato, pesos, bolivares, tasa, porcentaje,
     AJUSTES_BASE, ajustes, tasaBinance, margen, margenReal, tasaSugerida, tasaVeCo, avisoMargen,
     REFERENCIAS, calcular, fechaLarga, tarjeta, mensajeTexto,
-    RANGOS, revisarRangos, GANANCIA_MAX, avisoGanancia
+    RANGOS, revisarRangos, GANANCIA_MAX, avisoGanancia,
+    ESTADOS, FORMAS_PAGO, revisarCliente, revisarNota, resumenOperaciones
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   raiz.F = API;
