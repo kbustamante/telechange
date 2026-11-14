@@ -409,14 +409,15 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
   </div>
 </div>
 
-<script src="config.js"></script>
+<!-- config.js se pide siempre fresco (sin copia guardada), para que un cambio de dirección se vea al instante -->
+<script>document.write('<script src="config.js?v=' + Date.now() + '"><\/script>');</script>
 <script src="formulas.js"></script>
 <script>
 'use strict';
 // La dirección del servidor vive en config.js (se puede cambiar desde la página de GitHub sin volver a armar la app)
 const API_URL = window.TELECHANGE_API || '';
 const ENTORNO = 'REAL';
-const PANTALLA = 8;
+const PANTALLA = 9;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
