@@ -111,8 +111,8 @@ h2{margin:0;font-size:15px}
 select.num-in{width:auto;text-align:left;font-family:var(--txt);font-size:15px}
 input[type=checkbox].sw{width:52px;height:30px;accent-color:var(--rojo);flex:none}
 nav.abajo{position:fixed;left:0;right:0;bottom:0;background:#111726;border-top:1px solid var(--linea);padding:8px 8px calc(10px + env(safe-area-inset-bottom))}
-nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-nav.abajo button{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--gris);background:none;border:none;font-size:12px;font-weight:500}
+nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+nav.abajo button{min-height:52px;padding:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--gris);background:none;border:none;font-size:12px;font-weight:500}
 nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 /* PIN */
 .pin{flex:1;display:flex;flex-direction:column;align-items:center;gap:24px;padding:48px 28px 32px}
@@ -150,6 +150,12 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 .cifra .v{font-family:var(--num);font-size:19px;font-weight:700;word-break:break-word}
 .fila-lista{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--linea)}
 .fila-lista:last-child{border-bottom:none}
+.cuenta{background:var(--sup);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.cuenta .bco{font-weight:700;font-size:15px}
+.cuenta .num{font-family:var(--num);font-size:24px;font-weight:700;letter-spacing:.5px;word-break:break-all}
+.cuenta .tit{font-size:14px;color:var(--suave)}
+.cuenta .acc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.cuenta .acc .btn{min-height:44px;font-size:14px;padding:0 4px}
 .entendi{font-size:13px;color:var(--tenue);margin-top:-2px}
 .entendi b{color:var(--suave);font-weight:700}
 .entendi.mal{color:#ffb3b6}
@@ -248,6 +254,25 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
     <div id="regPendientes"></div>
     <section style="display:flex;flex-direction:column;gap:10px" id="regLista" aria-label="Operaciones"></section>
     <section class="caja oculto" id="regClientes" aria-label="Mejores clientes"></section>
+  </main>
+
+  <!-- Cuentas de Willi (donde le pagan los clientes) -->
+  <main id="vCuentas" class="oculto" aria-labelledby="tCuentas">
+    <header class="entre">
+      <h1 id="tCuentas">Cuentas</h1>
+      <button class="btn chico cel" id="btnNuevaCuenta">＋ Agregar</button>
+    </header>
+    <span class="nota">Tus cuentas para que te paguen. Mándalas con un toque cuando te las pidan.</span>
+    <div class="seg fondo" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group" aria-label="País" id="segPais">
+      <button data-v="Colombia">Colombia</button>
+      <button data-v="Venezuela">Venezuela</button>
+    </div>
+    <div id="cuentasAviso"></div>
+    <div class="dos" id="cuentasTodas">
+      <button class="btn prin" id="btnEnviarCuentas" style="font-size:15px">Enviar todas</button>
+      <button class="btn" id="btnCopiarCuentas">Copiar todas</button>
+    </div>
+    <section id="cuentasLista" style="display:flex;flex-direction:column;gap:10px" aria-label="Cuentas"></section>
   </main>
 
   <!-- Tasas -->
@@ -368,6 +393,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
     <div class="in">
       <button data-v="vCalc"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Calcular</button>
       <button data-v="vRegistro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v16H5V7z"/><path d="M8 4v3H5M9 11h7M9 15h7"/></svg>Registro</button>
+      <button data-v="vCuentas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>Cuentas</button>
       <button data-v="vTasas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Tasas</button>
       <button data-v="vAjustes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Ajustes</button>
     </div>
@@ -390,7 +416,7 @@ nav.abajo button[aria-current="page"]{color:var(--celeste);font-weight:700}
 // La dirección del servidor vive en config.js (se puede cambiar desde la página de GitHub sin volver a armar la app)
 const API_URL = window.TELECHANGE_API || '';
 const ENTORNO = 'REAL';
-const PANTALLA = 7;
+const PANTALLA = 8;
 
 // ───────── utilidades ─────────
 const $ = id => document.getElementById(id);
@@ -463,7 +489,7 @@ function calculo() {
 }
 
 // ───────── navegación ─────────
-const VISTAS = ['vPin', 'vCalc', 'vRegistro', 'vTasas', 'vAjustes'];
+const VISTAS = ['vPin', 'vCalc', 'vRegistro', 'vCuentas', 'vTasas', 'vAjustes'];
 function ir(v) {
   VISTAS.forEach(x => $(x).classList.toggle('oculto', x !== v));
   $('nav').classList.toggle('oculto', v === 'vPin');
@@ -471,6 +497,7 @@ function ir(v) {
   if (v === 'vTasas') llenarTasas();
   if (v === 'vAjustes') llenarAjustes();
   if (v === 'vRegistro') abrirRegistro();
+  if (v === 'vCuentas') pintarCuentas();
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('nav.abajo button').forEach(b => b.addEventListener('click', () => ir(b.dataset.v)));
@@ -798,6 +825,10 @@ async function enviar() {
   const listo = lista.clave === claveTarjeta() && lista.archivo;
   const l = listo ? lista : await generar();
   if (!l) return;
+  return compartirImagen(l, 'Tarjeta');
+}
+/** Comparte una imagen ({ archivo, url }) por el menú Compartir; si no hay, la copia y abre WhatsApp Web; si no, la descarga. */
+async function compartirImagen(l, que) {
   const datos = { files: [l.archivo] };
   if (navigator.canShare && navigator.canShare(datos)) {
     try { await navigator.share(datos); return; }
@@ -807,12 +838,12 @@ async function enviar() {
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': l.archivo })]);
       window.open('https://web.whatsapp.com/', 'telechange_whatsapp');
-      toast('Tarjeta copiada. En WhatsApp abre el chat del cliente y presiona Ctrl+V.', 8000);
+      toast(que + ' copiada. En WhatsApp abre el chat del cliente y presiona Ctrl+V.', 8000);
       return;
     } catch (e) {}
   }
   descargar(l);
-  toast('La tarjeta se descargó. En el chat de WhatsApp adjúntala con el clip 📎.', 8000);
+  toast(que + ' descargada. En el chat de WhatsApp adjúntala con el clip 📎.', 8000);
 }
 $('btnCompartir').addEventListener('click', enviar);
 $('btnCerrar').addEventListener('click', () => $('velo').classList.add('oculto'));
@@ -961,6 +992,117 @@ function editarOp(o, estadoNuevo) {
     el('label', { class: 'grupo', for: 'opNota' }, el('span', { class: 'etq' }, 'Nota corta (opcional)'), iN),
     b);
   $('velo').classList.remove('oculto'); (estadoNuevo ? sP : iC).focus();
+}
+
+// ───────── cuentas de Willi (V4) ─────────
+// Son las cuentas DEL NEGOCIO donde le pagan los clientes (no datos de clientes). Se mandan en imagen o se copian.
+let PAIS = leer('pais', 'Colombia');
+function cuentasDe(p) { return ((S.datos && S.datos.cuentas) || []).filter(c => c.pais === p); }
+function pintarCuentas() {
+  marcar('segPais', PAIS);
+  const aviso = $('cuentasAviso'), lista = $('cuentasLista'); aviso.textContent = ''; lista.textContent = '';
+  if (S.datos && !S.datos.cuentas) {
+    aviso.append(el('div', { class: 'aviso gris', role: 'status' }, el('b', {}, 'Falta actualizar el servidor'), el('span', {}, 'Para usar Cuentas, el servidor tiene que estar en la versión 4.')));
+    $('cuentasTodas').classList.add('oculto'); $('btnNuevaCuenta').disabled = true; return;
+  }
+  $('btnNuevaCuenta').disabled = false;
+  const cs = cuentasDe(PAIS);
+  $('cuentasTodas').classList.toggle('oculto', cs.length < 2);
+  if (!cs.length) { lista.append(el('div', { class: 'aviso gris' }, el('span', {}, 'Todavía no hay cuentas de ' + PAIS + '. Toca “＋ Agregar”.'))); return; }
+  cs.forEach(c => {
+    const bE = el('button', { class: 'btn cel' }, 'Enviar'), bC = el('button', { class: 'btn' }, 'Copiar'), bD = el('button', { class: 'btn' }, 'Editar');
+    bE.addEventListener('click', () => enviarCuentas([c]));
+    bC.addEventListener('click', () => copiarCuentas([c]));
+    bD.addEventListener('click', () => editarCuenta(c));
+    lista.append(el('article', { class: 'cuenta' },
+      el('span', { class: 'bco' }, c.banco + (c.tipo && c.tipo !== c.banco ? ' · ' + c.tipo : '')),
+      el('span', { class: 'num' }, c.numero),
+      (c.titular || c.documento) ? el('span', { class: 'tit' }, [c.titular, c.documento].filter(Boolean).join(' · ')) : null,
+      el('div', { class: 'acc' }, bE, bC, bD)));
+  });
+}
+document.querySelectorAll('#segPais button').forEach(b => b.addEventListener('click', () => { PAIS = b.dataset.v; guardar('pais', PAIS); pintarCuentas(); }));
+$('btnEnviarCuentas').addEventListener('click', () => enviarCuentas(cuentasDe(PAIS)));
+$('btnCopiarCuentas').addEventListener('click', () => copiarCuentas(cuentasDe(PAIS)));
+$('btnNuevaCuenta').addEventListener('click', () => editarCuenta({ pais: PAIS }));
+async function copiarCuentas(cs) {
+  const texto = F.textoCuentas(cs, negocio());
+  try { await navigator.clipboard.writeText(texto); }
+  catch (e) { const ta = el('textarea', { style: 'position:fixed;opacity:0' }); ta.value = texto; document.body.append(ta); ta.select(); try { document.execCommand('copy'); } catch (e2) {} ta.remove(); }
+  toast(cs.length === 1 ? 'Cuenta copiada. Pégala en WhatsApp.' : 'Cuentas copiadas. Pégalas en WhatsApp.');
+}
+async function enviarCuentas(cs) {
+  if (!cs.length) return;
+  const cv = await dibujarCuentas(cs);
+  const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+  const archivo = new File([blob], (negocio().nombre || 'cuentas').replace(/[^\w-]+/g, '') + '-cuentas.png', { type: 'image/png' });
+  return compartirImagen({ archivo, url: URL.createObjectURL(blob) }, cs.length === 1 ? 'Cuenta' : 'Cuentas');
+}
+async function dibujarCuentas(cs) {
+  await fuentesListas();
+  const logo = await cargarLogo();
+  const NUM = '"Space Grotesk", system-ui, sans-serif', TXT = 'Inter, system-ui, sans-serif';
+  const P = 56, xi = P + 44, xd = ANCHO - P - 44, anchoIn = xd - xi;
+  const cL = cajaLogo(logo, 480, 270);
+  const altoBloque = c => 64 + 84 + ((c.titular || c.documento) ? 50 : 0) + 30;
+  const yT = P + cL.h + 66, top = yT + 44;
+  let y = top, bloques = cs.map(c => { const b = { c, y, h: altoBloque(c) }; y += b.h + 20; return b; });
+  const yPie = y + 34, alto = yPie + 20 + P;
+  const cv = document.createElement('canvas'); cv.width = ANCHO; cv.height = alto;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#0b0f1a'; c.fillRect(0, 0, ANCHO, alto);
+  c.textBaseline = 'alphabetic';
+  if (logo) { c.save(); c.shadowColor = 'rgba(111,214,255,0.35)'; c.shadowBlur = 28; c.drawImage(logo, (ANCHO - cL.w) / 2, P, cL.w, cL.h); c.restore(); }
+  c.textAlign = 'center'; c.fillStyle = '#ffffff';
+  const paises = Array.from(new Set(cs.map(x => x.pais)));
+  const titulo = 'Cuentas para tu pago' + (paises.length === 1 ? ' · ' + paises[0] : '');
+  ajustar(c, titulo, '700 {t}px ' + NUM, 44, ANCHO - 2 * P); c.fillText(titulo, ANCHO / 2, yT);
+  bloques.forEach(b => {
+    const k = b.c;
+    c.fillStyle = '#ffffff'; redondeado(c, P, b.y, ANCHO - 2 * P, b.h, 32); c.fill();
+    c.textAlign = 'left';
+    c.fillStyle = '#4d5f6d'; c.font = '500 32px ' + TXT;
+    c.fillText(k.banco + (k.tipo && k.tipo !== k.banco ? ' · ' + k.tipo : ''), xi, b.y + 64);
+    c.fillStyle = '#0b0f1a'; ajustar(c, k.numero, '700 {t}px ' + NUM, 68, anchoIn); c.fillText(k.numero, xi, b.y + 64 + 84);
+    if (k.titular || k.documento) { c.fillStyle = '#3d4b56'; ajustar(c, [k.titular, k.documento].filter(Boolean).join(' · '), '400 {t}px ' + TXT, 30, anchoIn); c.fillText([k.titular, k.documento].filter(Boolean).join(' · '), xi, b.y + 64 + 84 + 50); }
+  });
+  c.textAlign = 'center'; c.fillStyle = '#6fd6ff'; c.font = '500 30px ' + TXT;
+  c.fillText('Envía el comprobante por este chat', ANCHO / 2, yPie);
+  return cv;
+}
+const BANCOS = ['Nequi', 'Bancolombia', 'Daviplata', 'Davivienda', 'Banco de Bogotá', 'BBVA', 'Banco de Venezuela', 'Banesco', 'Mercantil', 'Provincial', 'BNC', 'Bancamiga', 'Binance'];
+function editarCuenta(k) {
+  const cuerpo = $('ventCuerpo'); cuerpo.textContent = '';
+  $('ventTit').textContent = k.id ? 'Editar cuenta' : 'Agregar cuenta';
+  const campo = (id, etq, valor, attrs) => { const i = el('input', Object.assign({ class: 'txt-in', id, autocomplete: 'off' }, attrs || {})); i.value = valor || ''; return [i, el('label', { class: 'grupo', for: id }, el('span', { class: 'etq' }, etq), i)]; };
+  const sP = el('select', { class: 'txt-in', id: 'cuPais' }, ...F.PAISES.map(x => el('option', { value: x }, x))); sP.value = k.pais || PAIS;
+  const [iB, lB] = campo('cuBanco', 'Banco o medio', k.banco, { list: 'listaBancos', maxlength: '30' });
+  const sT = el('select', { class: 'txt-in', id: 'cuTipo' }, el('option', { value: '' }, '—'), ...F.TIPOS_CUENTA.map(x => el('option', { value: x }, x))); sT.value = k.tipo || '';
+  const [iN, lN] = campo('cuNumero', 'Número (cuenta, celular o pago móvil)', k.numero, { inputmode: 'numeric', maxlength: '30' });
+  const [iT, lT] = campo('cuTitular', 'Titular (opcional)', k.titular, { maxlength: '50' });
+  const [iD, lD] = campo('cuDoc', 'Documento del titular (opcional)', k.documento, { maxlength: '20' });
+  const dl = el('datalist', { id: 'listaBancos' }, ...BANCOS.map(b => el('option', { value: b })));
+  const bG = el('button', { class: 'btn prin' }, 'Guardar');
+  bG.addEventListener('click', () => conCarga(bG, async () => {
+    const d = { id: k.id, pais: sP.value, banco: iB.value, tipo: sT.value, numero: iN.value, titular: iT.value, documento: iD.value };
+    const r = F.revisarCuenta(d); if (!r.ok) throw new Error(r.error);
+    const res = await api('guardarCuenta', d);
+    S.datos.cuentas = res.cuentas; guardar('datos', S.datos); PAIS = sP.value; guardar('pais', PAIS);
+    $('velo').classList.add('oculto'); toast('Cuenta guardada.'); pintarCuentas();
+  }));
+  cuerpo.append(dl, el('label', { class: 'grupo', for: 'cuPais' }, el('span', { class: 'etq' }, 'País'), sP), lB,
+    el('label', { class: 'grupo', for: 'cuTipo' }, el('span', { class: 'etq' }, 'Tipo'), sT), lN, lT, lD, bG);
+  if (k.id) {
+    const bX = el('button', { class: 'btn', style: 'color:#ff8a8f' }, 'Borrar esta cuenta');
+    bX.addEventListener('click', () => conCarga(bX, async () => {
+      if (!window.confirm('¿Borrar la cuenta ' + k.banco + ' ' + k.numero + '?')) return;
+      const res = await api('borrarCuenta', { id: k.id });
+      S.datos.cuentas = res.cuentas; guardar('datos', S.datos);
+      $('velo').classList.add('oculto'); toast('Cuenta borrada.'); pintarCuentas();
+    }));
+    cuerpo.append(bX);
+  }
+  $('velo').classList.remove('oculto'); iB.focus();
 }
 
 // ───────── tasas ─────────
@@ -1117,6 +1259,7 @@ function pintarTodo() {
   if (!$('vCalc').classList.contains('oculto') || S.token) pintarCalc();
   if (!$('vTasas').classList.contains('oculto')) llenarTasas();
   pintarClientes();
+  if (!$('vCuentas').classList.contains('oculto')) pintarCuentas();
 }
 function iniciar() {
   if (ENTORNO !== 'REAL') { $('barraPrueba').classList.remove('oculto'); $('chipEntorno').textContent = ENTORNO; $('chipEntorno').classList.add('prueba'); }

@@ -367,12 +367,48 @@
     return r;
   }
 
+  // ───────── Cuentas de Willi (V4) ─────────
+  // Son las cuentas DEL NEGOCIO donde los clientes le pagan a Willi (no datos de clientes).
+  // Se mandan en imagen o como texto, porque los clientes siempre las piden de nuevo.
+  const PAISES = ['Colombia', 'Venezuela'];
+  const TIPOS_CUENTA = ['Ahorros', 'Corriente', 'Nequi', 'Daviplata', 'Pago móvil', 'Otro'];
+  function revisarCuenta(c) {
+    c = c || {};
+    const t = v => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+    const o = { pais: PAISES.indexOf(c.pais) >= 0 ? c.pais : 'Colombia', banco: t(c.banco), tipo: TIPOS_CUENTA.indexOf(c.tipo) >= 0 ? c.tipo : '',
+      numero: t(c.numero), titular: t(c.titular), documento: t(c.documento) };
+    if (!o.banco || o.banco.length > 30) return { ok: false, error: 'Escribe el banco o medio (máximo 30 letras)' };
+    if (!/^[\d\s.\-]{4,30}$/.test(o.numero)) return { ok: false, error: 'El número debe tener solo números (puede llevar espacios o guiones)' };
+    if (o.titular.length > 50) return { ok: false, error: 'El titular debe tener máximo 50 letras' };
+    if (o.documento.length > 20) return { ok: false, error: 'El documento debe tener máximo 20 caracteres' };
+    return { ok: true, valor: o };
+  }
+  /** Texto para copiar y pegar en WhatsApp con una o varias cuentas. */
+  function textoCuentas(cuentas, negocio) {
+    negocio = negocio || {};
+    const lista = (cuentas || []).filter(Boolean);
+    if (!lista.length) return '';
+    const paises = Array.from(new Set(lista.map(c => c.pais)));
+    const lineas = ['*' + (negocio.nombre || 'Telechange') + '* · Cuentas para tu pago' + (paises.length === 1 ? ' en ' + paises[0] : '')];
+    lista.forEach(c => {
+      lineas.push('');
+      lineas.push('*' + c.banco + (c.tipo && c.tipo !== c.banco ? ' · ' + c.tipo : '') + '*');
+      lineas.push(c.numero);
+      if (c.titular) lineas.push('Titular: ' + c.titular);
+      if (c.documento) lineas.push('Documento: ' + c.documento);
+    });
+    lineas.push('');
+    lineas.push('Envía el comprobante por este chat.');
+    return lineas.join('\n');
+  }
+
   const API = {
     redondear, leerNumero, formato, pesos, bolivares, tasa, porcentaje,
     AJUSTES_BASE, ajustes, tasaBinance, margen, margenReal, tasaSugerida, tasaVeCo, avisoMargen,
     REFERENCIAS, calcular, fechaLarga, tarjeta, mensajeTexto,
     RANGOS, revisarRangos, GANANCIA_MAX, avisoGanancia,
-    ESTADOS, FORMAS_PAGO, revisarCliente, revisarNota, resumenOperaciones
+    ESTADOS, FORMAS_PAGO, revisarCliente, revisarNota, resumenOperaciones,
+    PAISES, TIPOS_CUENTA, revisarCuenta, textoCuentas
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   raiz.F = API;
